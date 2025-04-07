@@ -35,14 +35,14 @@ export default function Header() {
             
             <nav className="hidden md:flex ml-8">
               <Link href="/" className={`px-3 py-2 ${isActive('/') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
-                Home
+                Início
               </Link>
               <Link href="/menu" className={`px-3 py-2 ${isActive('/menu') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
-                Menu
+                Cardápio
               </Link>
               {user?.role === 'admin' && (
                 <Link href="/admin" className="px-3 py-2 text-primary font-bold">
-                  Admin Dashboard
+                  Painel Admin
                 </Link>
               )}
             </nav>
@@ -67,14 +67,14 @@ export default function Header() {
                 <div className="flex items-center space-x-2">
                   <span className="text-sm font-medium">{user.name}</span>
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
-                    Logout
+                    Sair
                   </Button>
                 </div>
               ) : (
                 <Link href="/auth">
                   <Button variant="ghost" size="sm">
                     <User className="h-5 w-5 mr-2" />
-                    Login / Register
+                    Entrar / Cadastrar
                   </Button>
                 </Link>
               )}
@@ -94,14 +94,14 @@ export default function Header() {
           </div>
         </div>
         
-        {/* Mobile Menu */}
+        {/* Menu Mobile */}
         {mobileMenuOpen && (
           <nav className="md:hidden flex flex-col mt-4 pb-2">
             <Link href="/" className={`px-3 py-2 ${isActive('/') ? 'text-primary' : 'text-textColor hover:text-primary'}`}>
-              Home
+              Início
             </Link>
             <Link href="/menu" className={`px-3 py-2 ${isActive('/menu') ? 'text-primary' : 'text-textColor hover:text-primary'}`}>
-              Menu
+              Cardápio
             </Link>
             {user ? (
               <>
@@ -110,17 +110,17 @@ export default function Header() {
                   onClick={handleLogout} 
                   className="px-3 py-2 text-left text-textColor hover:text-primary"
                 >
-                  Logout
+                  Sair
                 </button>
               </>
             ) : (
               <Link href="/auth" className="px-3 py-2 text-textColor hover:text-primary">
-                Login / Register
+                Entrar / Cadastrar
               </Link>
             )}
             {user?.role === 'admin' && (
               <Link href="/admin" className="px-3 py-2 text-primary font-bold">
-                Admin Dashboard
+                Painel Admin
               </Link>
             )}
           </nav>

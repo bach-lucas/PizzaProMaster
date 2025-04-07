@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="font-heading font-bold text-xl mb-4">Bella Pizza</h3>
-            <p className="mb-4">Authentic Italian pizza made with passion and the finest ingredients.</p>
+            <p className="mb-4">Autêntica pizza italiana feita com paixão e os melhores ingredientes.</p>
             <div className="flex space-x-4">
               <a href="#" className="text-white hover:text-[#FFA41B]" aria-label="Facebook">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-5 h-5 fill-current">
@@ -33,76 +33,76 @@ export default function Footer() {
           </div>
           
           <div>
-            <h3 className="font-heading font-bold text-lg mb-4">Quick Links</h3>
+            <h3 className="font-heading font-bold text-lg mb-4">Links Rápidos</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="hover:text-[#FFA41B]">
-                  Home
+                  Início
                 </Link>
               </li>
               <li>
                 <Link href="/menu" className="hover:text-[#FFA41B]">
-                  Menu
+                  Cardápio
                 </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-[#FFA41B]">About Us</a>
+                <a href="#" className="hover:text-[#FFA41B]">Sobre Nós</a>
               </li>
               <li>
-                <a href="#" className="hover:text-[#FFA41B]">Contact</a>
+                <a href="#" className="hover:text-[#FFA41B]">Contato</a>
               </li>
               <li>
-                <a href="#" className="hover:text-[#FFA41B]">Careers</a>
+                <a href="#" className="hover:text-[#FFA41B]">Trabalhe Conosco</a>
               </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="font-heading font-bold text-lg mb-4">Contact Us</h3>
+            <h3 className="font-heading font-bold text-lg mb-4">Contato</h3>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mt-1 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span>123 Pizza Street, New York, NY 10001</span>
+                <span>Rua da Pizza, 123, São Paulo, SP</span>
               </li>
               <li className="flex items-start">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mt-1 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <span>(123) 456-7890</span>
+                <span>(11) 99876-5432</span>
               </li>
               <li className="flex items-start">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mt-1 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <span>info@bellapizza.com</span>
+                <span>contato@bellapizza.com.br</span>
               </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="font-heading font-bold text-lg mb-4">Hours</h3>
+            <h3 className="font-heading font-bold text-lg mb-4">Horários</h3>
             <ul className="space-y-2">
               <li className="flex justify-between">
-                <span>Monday - Thursday</span>
-                <span>11am - 10pm</span>
+                <span>Segunda - Quinta</span>
+                <span>11h - 22h</span>
               </li>
               <li className="flex justify-between">
-                <span>Friday - Saturday</span>
-                <span>11am - 11pm</span>
+                <span>Sexta - Sábado</span>
+                <span>11h - 23h</span>
               </li>
               <li className="flex justify-between">
-                <span>Sunday</span>
-                <span>12pm - 9pm</span>
+                <span>Domingo</span>
+                <span>12h - 21h</span>
               </li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-gray-600 mt-8 pt-8 text-center">
-          <p>&copy; {new Date().getFullYear()} Bella Pizza. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Bella Pizza. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>

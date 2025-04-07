@@ -21,25 +21,25 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
-        {/* Hero Section */}
+        {/* Seção Principal */}
         <section className="relative bg-[#D73C2C] text-white">
           <div className="container mx-auto px-4 py-16 md:py-24">
             <div className="max-w-3xl">
               <h1 className="font-heading font-bold text-4xl md:text-5xl mb-4">
-                Authentic Italian Pizza Delivered Hot & Fresh
+                Pizza Italiana Autêntica Entregue Quentinha & Fresca
               </h1>
               <p className="text-lg mb-8">
-                Handcrafted with premium ingredients and baked to perfection in our brick ovens
+                Feita artesanalmente com ingredientes premium e assada à perfeição em nossos fornos a lenha
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/menu">
                   <Button className="bg-[#FFA41B] hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full">
-                    Order Now
+                    Peça Agora
                   </Button>
                 </Link>
                 <Link href="/menu">
                   <Button variant="outline" className="bg-transparent hover:bg-white hover:text-[#D73C2C] border-2 border-white text-white font-bold py-3 px-8 rounded-full">
-                    View Menu
+                    Ver Cardápio
                   </Button>
                 </Link>
               </div>
@@ -54,16 +54,16 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Menu Section */}
+        {/* Seção de Itens em Destaque */}
         <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4">
             <h2 className="font-heading font-bold text-3xl md:text-4xl text-center mb-8">
-              Featured Items
+              Destaques do Cardápio
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {isLoadingFeatured ? (
-                // Loading state
+                // Estado de carregamento
                 Array(3).fill(0).map((_, index) => (
                   <div key={index} className="bg-white rounded-lg shadow-md h-80 animate-pulse">
                     <div className="w-full h-52 bg-gray-300"></div>
@@ -78,13 +78,13 @@ export default function HomePage() {
                   </div>
                 ))
               ) : featuredItems && featuredItems.length > 0 ? (
-                // Display featured items
+                // Exibir itens em destaque
                 featuredItems.slice(0, 3).map(item => (
                   <MenuItemCard key={item.id} item={item} />
                 ))
               ) : (
                 <div className="col-span-3 text-center py-8">
-                  <p className="text-gray-500">No featured items available.</p>
+                  <p className="text-gray-500">Nenhum item em destaque disponível.</p>
                 </div>
               )}
             </div>
@@ -92,7 +92,7 @@ export default function HomePage() {
             <div className="text-center">
               <Link href="/menu">
                 <Button variant="outline" className="bg-[#FFA41B] hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center">
-                  <span>View Full Menu</span>
+                  <span>Ver Cardápio Completo</span>
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -100,70 +100,70 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Special Offers Section */}
+        {/* Seção de Ofertas Especiais */}
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="font-heading font-bold text-3xl md:text-4xl text-center mb-8">
-              Special Offers
+              Ofertas Especiais
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {isLoadingOffers ? (
-                // Loading state
+                // Estado de carregamento
                 Array(2).fill(0).map((_, index) => (
                   <div key={index} className="bg-gray-200 rounded-lg h-40 animate-pulse"></div>
                 ))
               ) : specialOffers && specialOffers.length > 0 ? (
-                // Display special offers
+                // Exibir ofertas especiais
                 specialOffers.slice(0, 2).map((offer, index) => (
                   <SpecialOfferCard key={offer.id} offer={offer} isInverted={index % 2 !== 0} />
                 ))
               ) : (
                 <div className="col-span-2 text-center py-8">
-                  <p className="text-gray-500">No special offers available right now.</p>
+                  <p className="text-gray-500">Não há ofertas especiais disponíveis no momento.</p>
                 </div>
               )}
             </div>
           </div>
         </section>
         
-        {/* About Section */}
+        {/* Seção Sobre Nós */}
         <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center">
               <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
-                <h2 className="font-heading font-bold text-3xl md:text-4xl mb-6">Our Story</h2>
+                <h2 className="font-heading font-bold text-3xl md:text-4xl mb-6">Nossa História</h2>
                 <p className="text-gray-700 mb-4">
-                  At Bella Pizza, we've been crafting authentic Italian pizzas for over 25 years. Our recipes have been passed down through generations, and we take pride in using only the freshest ingredients.
+                  Na Bella Pizza, estamos preparando autênticas pizzas italianas há mais de 25 anos. Nossas receitas foram transmitidas por gerações, e temos orgulho de usar apenas os ingredientes mais frescos.
                 </p>
                 <p className="text-gray-700 mb-6">
-                  Our dough is made fresh daily, and our sauce is prepared with hand-selected tomatoes and a secret blend of herbs and spices.
+                  Nossa massa é feita fresca diariamente, e nosso molho é preparado com tomates selecionados à mão e uma mistura secreta de ervas e especiarias.
                 </p>
                 <div className="flex space-x-4">
-                  <a href="#" className="text-[#D73C2C] hover:text-red-700 font-bold">Learn more about us</a>
-                  <a href="#" className="text-[#D73C2C] hover:text-red-700 font-bold">See our locations</a>
+                  <a href="#" className="text-[#D73C2C] hover:text-red-700 font-bold">Saiba mais sobre nós</a>
+                  <a href="#" className="text-[#D73C2C] hover:text-red-700 font-bold">Veja nossas unidades</a>
                 </div>
               </div>
               <div className="md:w-1/2">
                 <div className="grid grid-cols-2 gap-4">
                   <img 
                     src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                    alt="Restaurant interior" 
+                    alt="Interior do restaurante" 
                     className="rounded-lg shadow-md object-cover h-48"
                   />
                   <img 
                     src="https://images.unsplash.com/photo-1590947132387-155cc02f3212?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                    alt="Chef preparing pizza" 
+                    alt="Chef preparando pizza" 
                     className="rounded-lg shadow-md object-cover h-48"
                   />
                   <img 
                     src="https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                    alt="Fresh pizza" 
+                    alt="Pizza fresca" 
                     className="rounded-lg shadow-md object-cover h-48"
                   />
                   <img 
                     src="https://images.unsplash.com/photo-1600628421055-4d30de868b8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                    alt="Dining experience" 
+                    alt="Experiência gastronômica" 
                     className="rounded-lg shadow-md object-cover h-48"
                   />
                 </div>
