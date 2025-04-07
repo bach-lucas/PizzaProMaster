@@ -20,6 +20,7 @@ import CreateEditItem from "@/pages/admin/create-edit-item";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AdminRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
+import { CartProvider } from "./hooks/use-cart";
 
 function Router() {
   return (
@@ -51,10 +52,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router />
-        <Toaster />
-      </AuthProvider>
+      <CartProvider>
+        <AuthProvider>
+          <Router />
+          <Toaster />
+        </AuthProvider>
+      </CartProvider>
     </QueryClientProvider>
   );
 }

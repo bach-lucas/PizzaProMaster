@@ -29,26 +29,20 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <Link href="/">
-              <a className="text-primary font-heading font-bold text-2xl">Bella Pizza</a>
+            <Link href="/" className="text-primary font-heading font-bold text-2xl">
+              Bella Pizza
             </Link>
             
             <nav className="hidden md:flex ml-8">
-              <Link href="/">
-                <a className={`px-3 py-2 ${isActive('/') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
-                  Home
-                </a>
+              <Link href="/" className={`px-3 py-2 ${isActive('/') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
+                Home
               </Link>
-              <Link href="/menu">
-                <a className={`px-3 py-2 ${isActive('/menu') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
-                  Menu
-                </a>
+              <Link href="/menu" className={`px-3 py-2 ${isActive('/menu') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
+                Menu
               </Link>
               {user?.role === 'admin' && (
-                <Link href="/admin">
-                  <a className="px-3 py-2 text-primary font-bold">
-                    Admin Dashboard
-                  </a>
+                <Link href="/admin" className="px-3 py-2 text-primary font-bold">
+                  Admin Dashboard
                 </Link>
               )}
             </nav>
@@ -103,15 +97,11 @@ export default function Header() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="md:hidden flex flex-col mt-4 pb-2">
-            <Link href="/">
-              <a className={`px-3 py-2 ${isActive('/') ? 'text-primary' : 'text-textColor hover:text-primary'}`}>
-                Home
-              </a>
+            <Link href="/" className={`px-3 py-2 ${isActive('/') ? 'text-primary' : 'text-textColor hover:text-primary'}`}>
+              Home
             </Link>
-            <Link href="/menu">
-              <a className={`px-3 py-2 ${isActive('/menu') ? 'text-primary' : 'text-textColor hover:text-primary'}`}>
-                Menu
-              </a>
+            <Link href="/menu" className={`px-3 py-2 ${isActive('/menu') ? 'text-primary' : 'text-textColor hover:text-primary'}`}>
+              Menu
             </Link>
             {user ? (
               <>
@@ -124,17 +114,13 @@ export default function Header() {
                 </button>
               </>
             ) : (
-              <Link href="/auth">
-                <a className="px-3 py-2 text-textColor hover:text-primary">
-                  Login / Register
-                </a>
+              <Link href="/auth" className="px-3 py-2 text-textColor hover:text-primary">
+                Login / Register
               </Link>
             )}
             {user?.role === 'admin' && (
-              <Link href="/admin">
-                <a className="px-3 py-2 text-primary font-bold">
-                  Admin Dashboard
-                </a>
+              <Link href="/admin" className="px-3 py-2 text-primary font-bold">
+                Admin Dashboard
               </Link>
             )}
           </nav>
