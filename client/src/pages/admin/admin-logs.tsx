@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import { AdminLog } from "@shared/schema";
 import {
   Table,
@@ -127,18 +128,18 @@ export default function AdminLogs() {
     <div className="container py-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Logs de Administrador</h1>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.history.back()}
-          className="flex items-center gap-1"
-        >
-          <ChevronLeft className="h-4 w-4" /> Voltar
-        </Button>
+        <Link href="/admin">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+          >
+            <ChevronLeft className="h-4 w-4" /> Voltar
+          </Button>
+        </Link>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Logs de Administrador</CardTitle>
           <CardDescription>
             Histórico de todas as ações realizadas pelos administradores no sistema
           </CardDescription>
