@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import Sidebar from "@/components/layout/sidebar";
+import { AdminLayout } from "@/components/layout/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { formatCurrency } from "@/lib/utils";
@@ -102,8 +102,9 @@ export default function Dashboard() {
     },
     {
       header: "Time",
-      accessorKey: (row: Order) => {
-        const date = new Date(row.createdAt);
+      accessorKey: "createdAt",
+      cell: (row: Order) => {
+        const date = row.createdAt ? new Date(row.createdAt) : new Date();
         return date.toLocaleString();
       },
     },
@@ -119,12 +120,10 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-      <Sidebar />
-      <div className="flex-1 p-8">
+    <AdminLayout title="Dashboard" showBackButton={false}>
+      <div>
         <div className="mb-6">
-          <h1 className="text-3xl font-heading font-bold">Dashboard</h1>
-          <p className="text-gray-600">Overview of your restaurant's performance</p>
+          <p className="text-gray-600">Visão geral do desempenho do seu restaurante</p>
         </div>
 
         {isLoadingStats ? (
@@ -147,46 +146,46 @@ export default function Dashboard() {
         ) : stats ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
-              title="Total Orders"
+              title="Total de Pedidos"
               value={stats.totalOrders}
-              description="12% from last week"
+              description="12% a mais que semana passada"
               icon={<ShoppingBag className="text-primary text-xl" />}
               colorClass="bg-primary"
             />
             
             <StatsCard
-              title="Revenue"
+              title="Receita"
               value={formatCurrency(stats.totalRevenue)}
-              description="8% from last week"
+              description="8% a mais que semana passada"
               icon={<DollarSign className="text-[#FFA41B] text-xl" />}
               colorClass="bg-[#FFA41B]"
             />
             
             <StatsCard
-              title="Active Orders"
+              title="Pedidos Ativos"
               value={stats.activeOrders}
-              description="5% from yesterday"
+              description="5% a mais que ontem"
               icon={<Clock className="text-green-500 text-xl" />}
               colorClass="bg-green-500"
             />
             
             <StatsCard
-              title="Customers"
+              title="Clientes"
               value={stats.totalCustomers}
-              description="15% from last month"
+              description="15% a mais que mês passado"
               icon={<Users className="text-[#2C5530] text-xl" />}
               colorClass="bg-[#2C5530]"
             />
           </div>
         ) : null}
 
-        {/* Charts */}
+        {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BarChart3 className="mr-2 h-5 w-5" />
-                Sales Overview
+                Visão Geral de Vendas
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -208,7 +207,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="h-64 flex items-center justify-center">
-                  <p className="text-gray-500">No data available</p>
+                  <p className="text-gray-500">Nenhum dado disponível</p>
                 </div>
               )}
             </CardContent>
@@ -218,7 +217,7 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <ShoppingBag className="mr-2 h-5 w-5" />
-                Top Selling Items
+                Itens Mais Vendidos
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -259,7 +258,7 @@ export default function Dashboard() {
                         <div className="flex-1">
                           <div className="flex justify-between">
                             <span className="font-medium">{item.name}</span>
-                            <span className="font-bold">{item.quantity} sold</span>
+                            <span className="font-bold">{item.quantity} vendidos</span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
                             <div className={`${bgColor} h-2.5 rounded-full`} style={{ width: `${percentage}%` }}></div>
@@ -271,17 +270,17 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-64">
-                  <p className="text-gray-500">No data available</p>
+                  <p className="text-gray-500">Nenhum dado disponível</p>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Recent Orders */}
+        {/* Pedidos Recentes */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
+            <CardTitle>Pedidos Recentes</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoadingStats ? (
@@ -294,16 +293,16 @@ export default function Dashboard() {
             ) : stats && stats.recentOrders ? (
               <DataTable 
                 data={stats.recentOrders}
-                columns={orderColumns}
+                columns={orderColumns as any[]}
               />
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500">No recent orders available</p>
+                <p className="text-gray-500">Nenhum pedido recente disponível</p>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

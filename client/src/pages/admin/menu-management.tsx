@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import Sidebar from "@/components/layout/sidebar";
+import { AdminLayout } from "@/components/layout/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
@@ -163,8 +163,8 @@ export default function MenuManagement() {
       header: "Status",
       accessorKey: "available",
       cell: (row: MenuItem) => (
-        <Badge variant={row.available ? "success" : "secondary"}>
-          {row.available ? "Active" : "Inactive"}
+        <Badge variant={row.available ? "default" : "secondary"}>
+          {row.available ? "Ativo" : "Inativo"}
         </Badge>
       ),
     },
@@ -241,8 +241,8 @@ export default function MenuManagement() {
       header: "Status",
       accessorKey: "active",
       cell: (row: SpecialOffer) => (
-        <Badge variant={row.active ? "success" : "secondary"}>
-          {row.active ? "Active" : "Inactive"}
+        <Badge variant={row.active ? "default" : "secondary"}>
+          {row.active ? "Ativo" : "Inativo"}
         </Badge>
       ),
     },
@@ -316,17 +316,15 @@ export default function MenuManagement() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-      <Sidebar />
-      <div className="flex-1 p-8">
+    <AdminLayout title="Gerenciamento de Cardápio">
+      <div>
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-heading font-bold">Menu Management</h1>
-            <p className="text-gray-600">Add, edit, and manage your menu items</p>
+            <p className="text-gray-600">Adicione, edite e gerencie os itens do cardápio</p>
           </div>
           <Link href="/admin/menu/create">
             <Button className="bg-primary hover:bg-red-700">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add New Item
+              <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Novo Item
             </Button>
           </Link>
         </div>
@@ -335,14 +333,14 @@ export default function MenuManagement() {
         <div className="mb-6 border-b border-gray-200">
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="flex overflow-x-auto">
-              <TabsTrigger value="all">All Items</TabsTrigger>
+              <TabsTrigger value="all">Todos os Itens</TabsTrigger>
               {!isLoadingCategories && categories?.map(category => (
                 <TabsTrigger key={category.id} value={category.id.toString()}>
                   {category.name}
                 </TabsTrigger>
               ))}
-              <TabsTrigger value="offers">Special Offers</TabsTrigger>
-              <TabsTrigger value="categories">Categories</TabsTrigger>
+              <TabsTrigger value="offers">Ofertas Especiais</TabsTrigger>
+              <TabsTrigger value="categories">Categorias</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -355,18 +353,18 @@ export default function MenuManagement() {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-heading font-semibold flex items-center">
                     <Tag className="mr-2 h-5 w-5" />
-                    Special Offers
+                    Ofertas Especiais
                   </h2>
                 </div>
                 {isLoadingOffers ? (
                   <div className="py-20 text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-4 text-gray-500">Loading special offers...</p>
+                    <p className="mt-4 text-gray-500">Carregando ofertas especiais...</p>
                   </div>
                 ) : (
                   <DataTable
                     data={specialOffers || []}
-                    columns={offerColumns}
+                    columns={offerColumns as any[]}
                   />
                 )}
               </div>
@@ -375,18 +373,18 @@ export default function MenuManagement() {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-heading font-semibold flex items-center">
                     <TagIcon className="mr-2 h-5 w-5" />
-                    Categories
+                    Categorias
                   </h2>
                 </div>
                 {isLoadingCategories ? (
                   <div className="py-20 text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-4 text-gray-500">Loading categories...</p>
+                    <p className="mt-4 text-gray-500">Carregando categorias...</p>
                   </div>
                 ) : (
                   <DataTable
                     data={categories || []}
-                    columns={categoryColumns}
+                    columns={categoryColumns as any[]}
                   />
                 )}
               </div>
@@ -395,18 +393,18 @@ export default function MenuManagement() {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-heading font-semibold flex items-center">
                     <Pizza className="mr-2 h-5 w-5" />
-                    Menu Items
+                    Itens do Cardápio
                   </h2>
                 </div>
                 {isLoadingMenuItems ? (
                   <div className="py-20 text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-4 text-gray-500">Loading menu items...</p>
+                    <p className="mt-4 text-gray-500">Carregando itens do cardápio...</p>
                   </div>
                 ) : (
                   <DataTable
                     data={getFilteredMenuItems()}
-                    columns={menuItemColumns}
+                    columns={menuItemColumns as any[]}
                   />
                 )}
               </div>
@@ -419,25 +417,29 @@ export default function MenuManagement() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the {deleteItemType.replace(/([A-Z])/g, ' $1').toLowerCase()}
-              {deleteItemType === "menuItem" && " and remove it from the menu"}.
+              Esta ação não pode ser desfeita. Isso excluirá permanentemente o {deleteItemType === "menuItem" 
+                ? "item do cardápio" 
+                : deleteItemType === "offer" 
+                  ? "oferta especial" 
+                  : "categoria"}
+              {deleteItemType === "menuItem" && " e o removerá do menu"}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >
               {deleteMenuItemMutation.isPending || deleteOfferMutation.isPending || deleteCategoryMutation.isPending 
-                ? "Deleting..." 
-                : "Delete"}
+                ? "Excluindo..." 
+                : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminLayout>
   );
 }
