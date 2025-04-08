@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface CartItem extends OrderItem {
   specialInstructions?: string;
+  description?: string;
 }
 
 interface CartContextType {

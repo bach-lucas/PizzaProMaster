@@ -14,6 +14,11 @@ import {
   orders,
   type Order,
   type InsertOrder,
+  type PizzaBase,
+  type PizzaSize,
+  type PizzaCrust,
+  type PizzaSauce,
+  type PizzaTopping
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -67,6 +72,14 @@ export interface IStorage {
   getUserOrders(userId: number): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+
+  // Pizza customization operations
+  getPizzaBases(): Promise<PizzaBase[]>;
+  getPizzaSizes(): Promise<PizzaSize[]>;
+  getPizzaCrusts(): Promise<PizzaCrust[]>;
+  getPizzaSauces(): Promise<PizzaSauce[]>;
+  getPizzaToppings(): Promise<PizzaTopping[]>;
+  getPizzaToppingsByCategory(): Promise<Record<string, PizzaTopping[]>>;
 
   // Session store
   sessionStore: any; // Using any for session store type to avoid issues
@@ -283,7 +296,7 @@ export class MemStorage implements IStorage {
 
   async createUser(user: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const newUser: User = { ...user, id, createdAt: new Date() };
+    const newUser: User = { ...user, id, createdAt: new Date(), role: user.role || 'customer' };
     this.usersMap.set(id, newUser);
     return newUser;
   }
@@ -347,7 +360,13 @@ export class MemStorage implements IStorage {
 
   async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
     const id = this.menuItemIdCounter++;
-    const newMenuItem: MenuItem = { ...menuItem, id };
+    const newMenuItem: MenuItem = { 
+      ...menuItem, 
+      id,
+      tags: menuItem.tags || null,
+      available: menuItem.available !== undefined ? menuItem.available : true,
+      featured: menuItem.featured !== undefined ? menuItem.featured : null
+    };
     this.menuItemsMap.set(id, newMenuItem);
     return newMenuItem;
   }
@@ -393,7 +412,11 @@ export class MemStorage implements IStorage {
     specialOffer: InsertSpecialOffer,
   ): Promise<SpecialOffer> {
     const id = this.specialOfferIdCounter++;
-    const newSpecialOffer: SpecialOffer = { ...specialOffer, id };
+    const newSpecialOffer: SpecialOffer = { 
+      ...specialOffer, 
+      id,
+      active: specialOffer.active !== undefined ? specialOffer.active : true
+    };
     this.specialOffersMap.set(id, newSpecialOffer);
     return newSpecialOffer;
   }
@@ -435,6 +458,9 @@ export class MemStorage implements IStorage {
     const newOrder: Order = {
       ...order,
       id,
+      status: order.status || 'pending',
+      userId: order.userId !== undefined ? order.userId : null,
+      address: order.address || null,
       createdAt: now,
       updatedAt: now,
     };
@@ -456,6 +482,313 @@ export class MemStorage implements IStorage {
     };
     this.ordersMap.set(id, updatedOrder);
     return updatedOrder;
+  }
+
+  // Pizza bases
+  private pizzaBases: PizzaBase[] = [
+    {
+      id: 1,
+      name: "Tradicional",
+      description: "Nossa massa tradicional, fina e crocante",
+      price: 10.99,
+      imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 2,
+      name: "Integral",
+      description: "Massa integral mais saudável e rica em fibras",
+      price: 12.99,
+      imageUrl: "https://images.unsplash.com/photo-1620374643809-b69c702d0ed4?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 3,
+      name: "Sem Glúten",
+      description: "Opção especial para intolerantes ao glúten",
+      price: 13.99,
+      imageUrl: "https://images.unsplash.com/photo-1552539618-7eec9b4d1796?auto=format&fit=crop&w=300&h=300&q=80"
+    }
+  ];
+
+  // Pizza sizes
+  private pizzaSizes: PizzaSize[] = [
+    {
+      id: 1,
+      name: "Pequena (25cm)",
+      multiplier: 0.8,
+      description: "Ideal para 1 pessoa"
+    },
+    {
+      id: 2,
+      name: "Média (30cm)",
+      multiplier: 1.0,
+      description: "Para 2 pessoas"
+    },
+    {
+      id: 3,
+      name: "Grande (35cm)",
+      multiplier: 1.2,
+      description: "Para 3 pessoas"
+    },
+    {
+      id: 4,
+      name: "Família (40cm)",
+      multiplier: 1.5,
+      description: "Para 4-5 pessoas"
+    }
+  ];
+
+  // Pizza crusts
+  private pizzaCrusts: PizzaCrust[] = [
+    {
+      id: 1,
+      name: "Fina",
+      price: 0,
+      description: "Massa fina e crocante"
+    },
+    {
+      id: 2,
+      name: "Tradicional",
+      price: 0,
+      description: "Espessura média e macia"
+    },
+    {
+      id: 3,
+      name: "Borda Recheada com Catupiry",
+      price: 3.99,
+      description: "Borda recheada com queijo tipo catupiry"
+    },
+    {
+      id: 4,
+      name: "Borda Recheada com Cheddar",
+      price: 3.99,
+      description: "Borda recheada com queijo cheddar cremoso"
+    }
+  ];
+
+  // Pizza sauces
+  private pizzaSauces: PizzaSauce[] = [
+    {
+      id: 1,
+      name: "Molho de Tomate Tradicional",
+      price: 0,
+      description: "Molho clássico de tomate com ervas",
+      imageUrl: "https://images.unsplash.com/photo-1608219992759-8d74ed8d76eb?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 2,
+      name: "Molho Branco",
+      price: 0.99,
+      description: "Molho cremoso à base de queijo",
+      imageUrl: "https://images.unsplash.com/photo-1583168641000-b48f999c93e0?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 3,
+      name: "Molho de Barbecue",
+      price: 0.99,
+      description: "Molho agridoce defumado",
+      imageUrl: "https://images.unsplash.com/photo-1601313816462-5644cf14eebf?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 4,
+      name: "Molho Picante",
+      price: 0.99,
+      description: "Molho de tomate com pimenta",
+      imageUrl: "https://images.unsplash.com/photo-1599311979600-a596f74a832c?auto=format&fit=crop&w=300&h=300&q=80"
+    }
+  ];
+
+  // Pizza toppings
+  private pizzaToppings: PizzaTopping[] = [
+    // Queijos
+    {
+      id: 1,
+      name: "Queijo Mussarela",
+      price: 0,
+      category: "Queijos",
+      description: "Queijo mussarela tradicional",
+      imageUrl: "https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 2,
+      name: "Queijo Parmesão",
+      price: 1.99,
+      category: "Queijos",
+      description: "Queijo parmesão ralado",
+      imageUrl: "https://images.unsplash.com/photo-1612165399985-1db5c62ae1e1?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 3,
+      name: "Queijo Gorgonzola",
+      price: 2.99,
+      category: "Queijos",
+      description: "Queijo azul com sabor forte",
+      imageUrl: "https://images.unsplash.com/photo-1626957341926-98752fc2ba90?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 4,
+      name: "Catupiry",
+      price: 1.99,
+      category: "Queijos",
+      description: "Queijo cremoso tipo requeijão",
+      imageUrl: "https://images.unsplash.com/photo-1559561853-08451507cbe7?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    
+    // Carnes
+    {
+      id: 5,
+      name: "Pepperoni",
+      price: 2.99,
+      category: "Carnes",
+      description: "Rodelas de salame pepperoni",
+      imageUrl: "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 6,
+      name: "Bacon",
+      price: 2.49,
+      category: "Carnes",
+      description: "Bacon crocante em cubos",
+      imageUrl: "https://images.unsplash.com/photo-1528607929212-2636ec44253e?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 7,
+      name: "Presunto",
+      price: 1.99,
+      category: "Carnes",
+      description: "Cubos de presunto",
+      imageUrl: "https://images.unsplash.com/photo-1609252644229-a34503634db5?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 8,
+      name: "Calabresa",
+      price: 1.99,
+      category: "Carnes",
+      description: "Calabresa fatiada",
+      imageUrl: "https://images.unsplash.com/photo-1626082929540-4da5cde5f72b?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 9,
+      name: "Frango Desfiado",
+      price: 1.99,
+      category: "Carnes",
+      description: "Peito de frango desfiado temperado",
+      imageUrl: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    
+    // Vegetais
+    {
+      id: 10,
+      name: "Tomate",
+      price: 0.99,
+      category: "Vegetais",
+      description: "Tomate em fatias",
+      imageUrl: "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 11,
+      name: "Cebola",
+      price: 0.99,
+      category: "Vegetais",
+      description: "Cebola em fatias",
+      imageUrl: "https://images.unsplash.com/photo-1599200786358-4752e3471784?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 12,
+      name: "Pimentão",
+      price: 0.99,
+      category: "Vegetais",
+      description: "Mix de pimentões coloridos",
+      imageUrl: "https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 13,
+      name: "Champignon",
+      price: 1.99,
+      category: "Vegetais",
+      description: "Champignon fatiado",
+      imageUrl: "https://images.unsplash.com/photo-1543362906-acfc16c67564?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 14,
+      name: "Milho",
+      price: 0.99,
+      category: "Vegetais",
+      description: "Milho verde",
+      imageUrl: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 15,
+      name: "Azeitonas",
+      price: 0.99,
+      category: "Vegetais",
+      description: "Azeitonas pretas fatiadas",
+      imageUrl: "https://images.unsplash.com/photo-1618660854352-58ebc77674d2?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    
+    // Especiais
+    {
+      id: 16,
+      name: "Manjericão",
+      price: 0.50,
+      category: "Especiais",
+      description: "Folhas de manjericão fresco",
+      imageUrl: "https://images.unsplash.com/photo-1600717707657-53775bc58050?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 17,
+      name: "Orégano",
+      price: 0,
+      category: "Especiais",
+      description: "Orégano seco",
+      imageUrl: "https://images.unsplash.com/photo-1600692980298-789d5abf88af?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 18,
+      name: "Azeite de Oliva",
+      price: 0.50,
+      category: "Especiais",
+      description: "Azeite de oliva extra virgem",
+      imageUrl: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=300&h=300&q=80"
+    },
+    {
+      id: 19,
+      name: "Parmesão Ralado",
+      price: 0.99,
+      category: "Especiais",
+      description: "Parmesão ralado na hora",
+      imageUrl: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=300&h=300&q=80"
+    }
+  ];
+
+  // Implementação dos métodos para customização de pizza
+  async getPizzaBases(): Promise<PizzaBase[]> {
+    return this.pizzaBases;
+  }
+
+  async getPizzaSizes(): Promise<PizzaSize[]> {
+    return this.pizzaSizes;
+  }
+
+  async getPizzaCrusts(): Promise<PizzaCrust[]> {
+    return this.pizzaCrusts;
+  }
+
+  async getPizzaSauces(): Promise<PizzaSauce[]> {
+    return this.pizzaSauces;
+  }
+
+  async getPizzaToppings(): Promise<PizzaTopping[]> {
+    return this.pizzaToppings;
+  }
+
+  async getPizzaToppingsByCategory(): Promise<Record<string, PizzaTopping[]>> {
+    return this.pizzaToppings.reduce((acc, topping) => {
+      if (!acc[topping.category]) {
+        acc[topping.category] = [];
+      }
+      acc[topping.category].push(topping);
+      return acc;
+    }, {} as Record<string, PizzaTopping[]>);
   }
 }
 

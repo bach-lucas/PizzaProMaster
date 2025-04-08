@@ -66,7 +66,7 @@ export default function OrderSuccessPage() {
                       </div>
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">Order Date:</span>
-                        <span>{new Date(order.createdAt).toLocaleString()}</span>
+                        <span>{order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</span>
                       </div>
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">Status:</span>
@@ -82,10 +82,15 @@ export default function OrderSuccessPage() {
                     
                     <h3 className="font-heading font-medium text-lg mb-3">Order Items</h3>
                     <div className="space-y-2 mb-4">
-                      {order.items.map((item: any, index: number) => (
+                      {(order.items as any[]).map((item: any, index: number) => (
                         <div key={index} className="flex justify-between py-2 border-b last:border-0">
                           <div>
                             <span className="font-medium">{item.name}</span>
+                            {item.description && (
+                              <div className="text-xs text-gray-600">
+                                {item.description}
+                              </div>
+                            )}
                             <div className="text-sm text-gray-500">
                               Qty: {item.quantity}
                             </div>

@@ -94,7 +94,7 @@ export default function OrderTrackingPage() {
               <h1 className="font-heading text-3xl font-bold">Order Tracking</h1>
               {order && (
                 <p className="text-gray-600">
-                  Order #{order.id} • Placed on {new Date(order.createdAt).toLocaleDateString()}
+                  Order #{order.id} • Placed on {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
                 </p>
               )}
             </div>
@@ -215,11 +215,16 @@ export default function OrderTrackingPage() {
                       <div>
                         <h3 className="font-medium mb-3">Items</h3>
                         <div className="space-y-2">
-                          {order.items.map((item: any, index: number) => (
+                          {(order.items as any[]).map((item: any, index: number) => (
                             <div key={index} className="flex justify-between py-2 border-b last:border-0">
                               <div className="flex items-start">
                                 <div>
                                   <span className="font-medium">{item.name}</span>
+                                  {item.description && (
+                                    <div className="text-xs text-gray-600">
+                                      {item.description}
+                                    </div>
+                                  )}
                                   <div className="text-sm text-gray-500">
                                     Qty: {item.quantity}
                                     {item.specialInstructions && (

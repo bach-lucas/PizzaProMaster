@@ -40,6 +40,9 @@ export default function Header() {
               <Link href="/menu" className={`px-3 py-2 ${isActive('/menu') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
                 Cardápio
               </Link>
+              <Link href="/monte-sua-pizza" className={`px-3 py-2 ${isActive('/monte-sua-pizza') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
+                Monte Sua Pizza
+              </Link>
               {user?.role === 'admin' && (
                 <Link href="/admin" className="px-3 py-2 text-primary font-bold">
                   Painel Admin
@@ -102,6 +105,9 @@ export default function Header() {
             </Link>
             <Link href="/menu" className={`px-3 py-2 ${isActive('/menu') ? 'text-primary' : 'text-textColor hover:text-primary'}`}>
               Cardápio
+            </Link>
+            <Link href="/monte-sua-pizza" className={`px-3 py-2 ${isActive('/monte-sua-pizza') ? 'text-primary' : 'text-textColor hover:text-primary'}`}>
+              Monte Sua Pizza
             </Link>
             {user ? (
               <>

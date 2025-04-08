@@ -119,6 +119,9 @@ export default function CheckoutPage() {
                       <div className="flex items-start">
                         <div className="flex flex-col">
                           <span className="font-medium">{item.name}</span>
+                          {item.description && (
+                            <span className="text-xs text-gray-600">{item.description}</span>
+                          )}
                           <div className="flex items-center mt-1">
                             <Button
                               variant="outline"

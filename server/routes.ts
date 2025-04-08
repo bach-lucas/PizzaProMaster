@@ -447,7 +447,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Recent orders
       const recentOrders = [...orders]
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .sort((a, b) => {
+          // Handle null createdAt values
+          if (!a.createdAt && !b.createdAt) return 0;
+          if (!a.createdAt) return 1;
+          if (!b.createdAt) return -1;
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        })
         .slice(0, 10);
       
       res.json({
@@ -462,6 +468,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Error fetching admin stats" });
+    }
+  });
+
+  // Pizza Customization Routes
+  app.get("/api/pizza/bases", async (req, res) => {
+    try {
+      const bases = await storage.getPizzaBases();
+      res.json(bases);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching pizza bases" });
+    }
+  });
+
+  app.get("/api/pizza/sizes", async (req, res) => {
+    try {
+      const sizes = await storage.getPizzaSizes();
+      res.json(sizes);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching pizza sizes" });
+    }
+  });
+
+  app.get("/api/pizza/crusts", async (req, res) => {
+    try {
+      const crusts = await storage.getPizzaCrusts();
+      res.json(crusts);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching pizza crusts" });
+    }
+  });
+
+  app.get("/api/pizza/sauces", async (req, res) => {
+    try {
+      const sauces = await storage.getPizzaSauces();
+      res.json(sauces);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching pizza sauces" });
+    }
+  });
+
+  app.get("/api/pizza/toppings", async (req, res) => {
+    try {
+      const toppings = await storage.getPizzaToppings();
+      res.json(toppings);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching pizza toppings" });
+    }
+  });
+
+  app.get("/api/pizza/toppings/categories", async (req, res) => {
+    try {
+      const toppingsByCategory = await storage.getPizzaToppingsByCategory();
+      res.json(toppingsByCategory);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching pizza toppings by category" });
     }
   });
 

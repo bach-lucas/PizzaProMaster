@@ -67,6 +67,12 @@ const CartModal = () => {
                       <span className="font-bold">{formatCurrency(item.price * item.quantity)}</span>
                     </div>
                     
+                    {item.description && (
+                      <p className="text-xs text-gray-600 mt-1 mb-1">
+                        {item.description}
+                      </p>
+                    )}
+                    
                     {editingInstructions === item.id ? (
                       <div className="mt-1">
                         <Input
