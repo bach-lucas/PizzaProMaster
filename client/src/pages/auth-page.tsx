@@ -15,8 +15,8 @@ import Footer from "@/components/layout/footer";
 
 // Login schema
 const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(1, "Password is required"),
+  username: z.string().min(1, "Nome de usuário é obrigatório"),
+  password: z.string().min(1, "Senha é obrigatória"),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
@@ -74,19 +74,19 @@ export default function AuthPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="font-heading text-2xl text-center">
-                    {activeTab === "login" ? "Welcome Back" : "Create an Account"}
+                    {activeTab === "login" ? "Bem-vindo de Volta" : "Criar uma Conta"}
                   </CardTitle>
                   <CardDescription className="text-center">
                     {activeTab === "login" 
-                      ? "Sign in to your account to order your favorite pizza" 
-                      : "Join us for exclusive offers and easy ordering"}
+                      ? "Entre na sua conta para pedir sua pizza favorita" 
+                      : "Junte-se a nós para ofertas exclusivas e pedidos fáceis"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-2 mb-6">
-                      <TabsTrigger value="login">Login</TabsTrigger>
-                      <TabsTrigger value="register">Register</TabsTrigger>
+                      <TabsTrigger value="login">Entrar</TabsTrigger>
+                      <TabsTrigger value="register">Cadastrar</TabsTrigger>
                     </TabsList>
 
                     {/* Login Form */}
@@ -98,10 +98,10 @@ export default function AuthPage() {
                             name="username"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Username</FormLabel>
+                                <FormLabel>Nome de usuário</FormLabel>
                                 <FormControl>
                                   <Input 
-                                    placeholder="Enter your username" 
+                                    placeholder="Digite seu nome de usuário" 
                                     {...field} 
                                     disabled={loginMutation.isPending}
                                   />
@@ -116,11 +116,11 @@ export default function AuthPage() {
                             name="password"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>Senha</FormLabel>
                                 <FormControl>
                                   <Input 
                                     type="password" 
-                                    placeholder="Enter your password" 
+                                    placeholder="Digite sua senha" 
                                     {...field} 
                                     disabled={loginMutation.isPending}
                                   />
@@ -135,7 +135,7 @@ export default function AuthPage() {
                             className="w-full bg-[#D73C2C] hover:bg-red-700"
                             disabled={loginMutation.isPending}
                           >
-                            {loginMutation.isPending ? "Signing in..." : "Sign In"}
+                            {loginMutation.isPending ? "Entrando..." : "Entrar"}
                           </Button>
                         </form>
                       </Form>
