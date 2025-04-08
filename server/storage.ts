@@ -1079,9 +1079,9 @@ export class DatabaseStorage implements IStorage {
 
   // Pizza customization operations - valores fixos
   private pizzaBases: PizzaBase[] = [
-    { id: 1, name: "Tradicional", description: "Massa clássica de pizza" },
-    { id: 2, name: "Integral", description: "Massa de trigo integral, mais saudável" },
-    { id: 3, name: "Sem Glúten", description: "Perfeita para quem tem sensibilidade ao glúten" },
+    { id: 1, name: "Tradicional", description: "Massa clássica de pizza", price: 0 },
+    { id: 2, name: "Integral", description: "Massa de trigo integral, mais saudável", price: 2 },
+    { id: 3, name: "Sem Glúten", description: "Perfeita para quem tem sensibilidade ao glúten", price: 3 },
   ];
 
   private pizzaSizes: PizzaSize[] = [

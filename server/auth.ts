@@ -176,7 +176,7 @@ export function setupAuth(app: Express) {
     "/api/offer/delete/*",
     "/api/users"
   ], (req, res, next) => {
-    if (req.isAuthenticated() && req.user.role === "admin") {
+    if (req.isAuthenticated() && (req.user.role === "admin" || req.user.role === "admin_master")) {
       next();
     } else {
       res.status(403).json({ message: "Forbidden: Admin access required" });
