@@ -519,11 +519,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Registrar no log de administradores
+      if (updatedUser.role === role && req.user.role === "admin_master") {
+        // Só registra se a alteração foi bem-sucedida e feita por um admin_master
+        await storage.logAdminAction({
+          adminId: req.user.id,
+          action: "update_role",
+          entityType: "user",
+          entityId: id,
+          details: `Alterou função do usuário ${updatedUser.username} para ${role}`
+        });
+      }
+      
       // Remove a senha da resposta
       const { password, ...safeUser } = updatedUser;
       res.json(safeUser);
     } catch (error) {
       res.status(500).json({ message: "Erro ao alterar função do usuário" });
+    }
+  });
+
+  // Admin logs
+  app.post("/api/admin/logs", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
+      const adminId = req.user.id;
+      const { action, entityType, entityId, details } = req.body;
+      const ipAddress = req.ip;
+      
+      const logEntry = await storage.logAdminAction({
+        adminId,
+        action,
+        entityType,
+        entityId,
+        details,
+        ipAddress
+      });
+      
+      res.status(201).json(logEntry);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao registrar ação de administrador" });
+    }
+  });
+  
+  app.get("/api/admin/logs", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
+      // Se for admin_master, pode ver todos os logs; caso contrário, vê apenas os próprios logs
+      const adminId = req.user.role === "admin_master" ? undefined : req.user.id;
+      const logs = await storage.getAdminLogs(adminId);
+      
+      // Buscar informações dos usuários para enriquecer os logs
+      const adminIdsSet = new Set<number>();
+      logs.forEach(log => adminIdsSet.add(log.adminId));
+      const adminIds = Array.from(adminIdsSet);
+      const admins = await Promise.all(
+        adminIds.map(id => storage.getUser(id))
+      );
+      
+      const adminsMap = new Map();
+      admins.forEach(admin => {
+        if (admin) {
+          const { id, name, username } = admin;
+          adminsMap.set(id, { id, name, username });
+        }
+      });
+      
+      // Adicionar nomes de administradores aos logs
+      const logsWithAdminInfo = logs.map(log => ({
+        ...log,
+        admin: adminsMap.get(log.adminId) || { id: log.adminId, name: "Desconhecido", username: "desconhecido" }
+      }));
+      
+      res.json(logsWithAdminInfo);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar logs de administrador" });
     }
   });
 

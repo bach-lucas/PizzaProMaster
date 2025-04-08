@@ -6,7 +6,8 @@ import {
   ClipboardList, 
   Users, 
   Settings, 
-  ChevronLeft
+  ChevronLeft,
+  History
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -57,6 +58,15 @@ export default function Sidebar() {
                 isActive('/admin/users') ? 'bg-opacity-20 bg-white' : ''
               }`}>
                 <Users className="inline-block mr-2 h-5 w-5" /> Users
+              </a>
+            </Link>
+          </li>
+          <li className="mb-2">
+            <Link href="/admin/logs">
+              <a className={`block py-2 px-4 rounded hover:bg-opacity-20 hover:bg-white transition ${
+                isActive('/admin/logs') ? 'bg-opacity-20 bg-white' : ''
+              }`}>
+                <History className="inline-block mr-2 h-5 w-5" /> Logs de Admin
               </a>
             </Link>
           </li>

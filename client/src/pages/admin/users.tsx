@@ -15,10 +15,12 @@ import { Users as UsersIcon, ChevronDown, UserCheck, UserMinus } from "lucide-re
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAdminLogs } from "@/hooks/use-admin-logs";
 
 export default function Users() {
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
+  const { logAction } = useAdminLogs();
   
   // Fetch all users
   const { data: users, isLoading } = useQuery<any[]>({
@@ -27,11 +29,19 @@ export default function Users() {
   
   // Mutation para alterar a função do usuário
   const changeRoleMutation = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: number, newRole: string }) => {
+    mutationFn: async ({ userId, newRole, username }: { userId: number, newRole: string, username: string }) => {
       const res = await apiRequest("PUT", `/api/users/${userId}/role`, { role: newRole });
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      // Registra a ação no log de administrador
+      logAction(
+        "update_role",
+        "user",
+        variables.userId,
+        `Alterou função do usuário ${variables.username} para ${getRoleName(variables.newRole)}`
+      );
+      
       toast({
         title: "Função alterada",
         description: "A função do usuário foi alterada com sucesso.",
@@ -46,6 +56,20 @@ export default function Users() {
       });
     },
   });
+  
+  // Função auxiliar para obter o nome legível da função
+  const getRoleName = (role: string): string => {
+    switch (role) {
+      case "admin_master":
+        return "Administrador Master";
+      case "admin":
+        return "Administrador";
+      case "customer":
+        return "Cliente";
+      default:
+        return role;
+    }
+  };
 
   // User columns for the data table
   const userColumns = [
@@ -116,7 +140,11 @@ export default function Users() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem 
-                onClick={() => changeRoleMutation.mutate({ userId: row.id, newRole: "customer" })}
+                onClick={() => changeRoleMutation.mutate({ 
+                  userId: row.id, 
+                  newRole: "customer",
+                  username: row.username
+                })}
                 disabled={row.role === "customer"}
                 className="flex items-center"
               >
@@ -124,7 +152,11 @@ export default function Users() {
                 Cliente
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={() => changeRoleMutation.mutate({ userId: row.id, newRole: "admin" })}
+                onClick={() => changeRoleMutation.mutate({ 
+                  userId: row.id, 
+                  newRole: "admin",
+                  username: row.username
+                })}
                 disabled={row.role === "admin"}
                 className="flex items-center"
               >
@@ -132,7 +164,11 @@ export default function Users() {
                 Administrador
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={() => changeRoleMutation.mutate({ userId: row.id, newRole: "admin_master" })}
+                onClick={() => changeRoleMutation.mutate({ 
+                  userId: row.id, 
+                  newRole: "admin_master",
+                  username: row.username
+                })}
                 disabled={row.role === "admin_master"}
                 className="flex items-center"
               >

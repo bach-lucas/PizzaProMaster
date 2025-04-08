@@ -59,8 +59,14 @@ export default function AuthPage() {
 
   // Redirecionamento após todos os hooks serem chamados
   if (user) {
-    // Usar efeito para evitar alteração do estado durante renderização
-    setTimeout(() => navigate('/'), 0);
+    // Redirecionar com base no papel do usuário
+    if (user.role === 'admin' || user.role === 'admin_master') {
+      // Redirecionar administradores para o painel administrativo
+      setTimeout(() => navigate('/admin'), 0);
+    } else {
+      // Redirecionar clientes regulares para a página inicial
+      setTimeout(() => navigate('/'), 0);
+    }
   }
   
   return (

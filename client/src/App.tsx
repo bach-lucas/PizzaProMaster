@@ -17,6 +17,7 @@ import Dashboard from "@/pages/admin/dashboard";
 import MenuManagement from "@/pages/admin/menu-management";
 import Orders from "@/pages/admin/orders";
 import Users from "@/pages/admin/users";
+import AdminLogs from "@/pages/admin/admin-logs";
 import CreateEditItem from "@/pages/admin/create-edit-item";
 
 import { ProtectedRoute } from "./lib/protected-route";
@@ -46,6 +47,7 @@ function Router() {
       <AdminRoute path="/admin/users" component={Users} />
       <AdminRoute path="/admin/menu/create" component={CreateEditItem} />
       <AdminRoute path="/admin/menu/edit/:id" component={CreateEditItem} />
+      <AdminRoute path="/admin/logs" component={AdminLogs} />
       
       {/* Fallback to 404 */}
       <Route component={NotFound} />

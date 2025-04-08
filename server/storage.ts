@@ -17,6 +17,9 @@ import {
   addresses,
   type Address,
   type InsertAddress,
+  adminLogs,
+  type AdminLog,
+  type InsertAdminLog,
   type PizzaBase,
   type PizzaSize,
   type PizzaCrust,
@@ -51,6 +54,10 @@ export interface IStorage {
   updateAddress(id: number, addressData: Partial<InsertAddress>): Promise<Address | undefined>;
   deleteAddress(id: number): Promise<boolean>;
   clearFavoriteAddresses(userId: number): Promise<void>;
+  
+  // Admin logs operations
+  logAdminAction(adminLog: InsertAdminLog): Promise<AdminLog>;
+  getAdminLogs(adminId?: number): Promise<AdminLog[]>;
 
   // Category operations
   getCategory(id: number): Promise<Category | undefined>;
@@ -112,6 +119,7 @@ export class MemStorage implements IStorage {
   private specialOffersMap: Map<number, SpecialOffer>;
   private ordersMap: Map<number, Order>;
   private addressesMap: Map<number, Address>;
+  private adminLogsMap: Map<number, AdminLog>;
 
   sessionStore: any; // Usando any para o tipo do sessionStore para evitar problemas de tipagem
 
@@ -129,6 +137,7 @@ export class MemStorage implements IStorage {
     this.specialOffersMap = new Map();
     this.ordersMap = new Map();
     this.addressesMap = new Map();
+    this.adminLogsMap = new Map();
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000, // prune expired entries every 24h
     });
@@ -914,6 +923,31 @@ export class MemStorage implements IStorage {
       }
     }
   }
+  
+  // Admin log methods
+  private adminLogIdCounter = 1;
+  
+  async logAdminAction(adminLog: InsertAdminLog): Promise<AdminLog> {
+    const id = this.adminLogIdCounter++;
+    const newLog: AdminLog = {
+      ...adminLog,
+      id,
+      createdAt: new Date(),
+      entityId: adminLog.entityId || null,
+      details: adminLog.details || null,
+      ipAddress: adminLog.ipAddress || null
+    };
+    this.adminLogsMap.set(id, newLog);
+    return newLog;
+  }
+  
+  async getAdminLogs(adminId?: number): Promise<AdminLog[]> {
+    const logs = Array.from(this.adminLogsMap.values());
+    if (adminId) {
+      return logs.filter(log => log.adminId === adminId);
+    }
+    return logs;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1266,6 +1300,19 @@ export class DatabaseStorage implements IStorage {
       .update(addresses)
       .set({ isFavorite: false })
       .where(and(eq(addresses.userId, userId), eq(addresses.isFavorite, true)));
+  }
+  
+  // Admin log methods
+  async logAdminAction(adminLog: InsertAdminLog): Promise<AdminLog> {
+    const [newLog] = await db.insert(adminLogs).values(adminLog).returning();
+    return newLog;
+  }
+  
+  async getAdminLogs(adminId?: number): Promise<AdminLog[]> {
+    if (adminId) {
+      return db.select().from(adminLogs).where(eq(adminLogs.adminId, adminId)).orderBy(desc(adminLogs.createdAt));
+    }
+    return db.select().from(adminLogs).orderBy(desc(adminLogs.createdAt));
   }
 }
 
