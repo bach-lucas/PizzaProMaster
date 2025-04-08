@@ -269,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       let orders;
-      if (req.user.role === "admin") {
+      if (req.user.role === "admin" || req.user.role === "admin_master") {
         // Admins can see all orders
         orders = await storage.getAllOrders();
       } else {
@@ -301,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if user has permission to view this order
-      if (req.user.role !== "admin" && order.userId !== req.user.id) {
+      if (req.user.role !== "admin" && req.user.role !== "admin_master" && order.userId !== req.user.id) {
         return res.status(403).json({ message: "You don't have permission to view this order" });
       }
       
@@ -350,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/orders/:id/status", async (req, res) => {
     try {
-      if (!req.isAuthenticated() || req.user.role !== "admin") {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
         return res.status(403).json({ message: "Only admins can update order status" });
       }
 
@@ -379,20 +379,158 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User management (admin only)
   app.get("/api/users", async (req, res) => {
     try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
       const users = await storage.getAllUsers();
       // Remove passwords from the response
       const safeUsers = users.map(({ password, ...user }) => user);
       res.json(safeUsers);
     } catch (error) {
-      res.status(500).json({ message: "Error fetching users" });
+      res.status(500).json({ message: "Erro ao buscar usuários" });
+    }
+  });
+  
+  // Obter um usuário específico
+  app.get("/api/users/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID de usuário inválido" });
+      }
+      
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
+      // Remove a senha da resposta
+      const { password, ...safeUser } = user;
+      res.json(safeUser);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar usuário" });
+    }
+  });
+  
+  // Atualizar um usuário
+  app.put("/api/users/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Você precisa estar logado para atualizar um usuário" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID de usuário inválido" });
+      }
+      
+      // Verificar permissões: somente o próprio usuário ou um administrador pode atualizar
+      if (req.user.id !== id && req.user.role !== "admin" && req.user.role !== "admin_master") {
+        return res.status(403).json({ message: "Sem permissão para atualizar este usuário" });
+      }
+      
+      // Se a senha for fornecida, hash ela
+      let userData = { ...req.body };
+      if (userData.password) {
+        userData.password = await hashPassword(userData.password);
+      }
+      
+      const updatedUser = await storage.updateUser(id, userData);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
+      // Remove a senha da resposta
+      const { password, ...safeUser } = updatedUser;
+      res.json(safeUser);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao atualizar usuário" });
+    }
+  });
+  
+  // Excluir um usuário
+  app.delete("/api/users/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID de usuário inválido" });
+      }
+      
+      // Não permitir que usuários excluam a si mesmos
+      if (id === req.user.id) {
+        return res.status(400).json({ message: "Você não pode excluir sua própria conta" });
+      }
+      
+      const success = await storage.deleteUser(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Usuário não encontrado ou é o admin master (não pode ser excluído)" });
+      }
+      
+      res.json({ message: "Usuário excluído com sucesso" });
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao excluir usuário" });
+    }
+  });
+  
+  // Alterar a função de um usuário (somente admin_master)
+  app.put("/api/users/:id/role", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Você precisa estar logado para alterar funções" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID de usuário inválido" });
+      }
+      
+      const { role } = req.body;
+      if (!role || !["admin_master", "admin", "customer"].includes(role)) {
+        return res.status(400).json({ message: "Função inválida" });
+      }
+      
+      const updatedUser = await storage.setUserRole(id, role, req.user.id);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
+      // Se o usuário tentou alterar a função mas não tem permissão
+      if (updatedUser.role !== role) {
+        return res.status(403).json({ 
+          message: "Sem permissão para definir esta função. Somente o admin master pode promover/rebaixar administradores.",
+          user: {
+            id: updatedUser.id,
+            username: updatedUser.username,
+            role: updatedUser.role
+          }
+        });
+      }
+      
+      // Remove a senha da resposta
+      const { password, ...safeUser } = updatedUser;
+      res.json(safeUser);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao alterar função do usuário" });
     }
   });
 
   // Admin dashboard stats
   app.get("/api/admin/stats", async (req, res) => {
     try {
-      if (!req.isAuthenticated() || req.user.role !== "admin") {
-        return res.status(403).json({ message: "Admin access required" });
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
       }
 
       const orders = await storage.getAllOrders();

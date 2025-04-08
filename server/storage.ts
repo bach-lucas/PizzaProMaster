@@ -31,6 +31,10 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
+  updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined>;
+  deleteUser(id: number): Promise<boolean>;
+  setUserRole(id: number, role: string, adminId: number): Promise<User | undefined>;
+  isAdminMaster(id: number): Promise<boolean>;
 
   // Category operations
   getCategory(id: number): Promise<Category | undefined>;
@@ -122,7 +126,7 @@ export class MemStorage implements IStorage {
       password: "e3bc715f83803b24aee7c8126f22cca845617204917dbe7780d76313654dcf8c054f0b590178089ed62f9460c178aadbd7814361925192bbf2dc23639bd4e4d1.2f5c47acaaec2942b27c9d09bb3692d6", // "admin123"
       name: "Administrador",
       email: "admin@bellapizza.com",
-      role: "admin",
+      role: "admin_master",
       createdAt: new Date(),
     });
 
@@ -135,6 +139,18 @@ export class MemStorage implements IStorage {
       name: "Cliente Teste",
       email: "cliente@exemplo.com",
       role: "customer",
+      createdAt: new Date(),
+    });
+    
+    // Create a regular admin user
+    this.usersMap.set(this.userIdCounter++, {
+      id: 3,
+      username: "gerente",
+      password:
+        "e3bc715f83803b24aee7c8126f22cca845617204917dbe7780d76313654dcf8c054f0b590178089ed62f9460c178aadbd7814361925192bbf2dc23639bd4e4d1.2f5c47acaaec2942b27c9d09bb3692d6", // "admin123"
+      name: "Gerente",
+      email: "gerente@bellapizza.com",
+      role: "admin",
       createdAt: new Date(),
     });
 
@@ -303,6 +319,50 @@ export class MemStorage implements IStorage {
 
   async getAllUsers(): Promise<User[]> {
     return Array.from(this.usersMap.values());
+  }
+  
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
+    const existingUser = this.usersMap.get(id);
+    if (!existingUser) return undefined;
+    
+    // Não permitir alteração da função do usuário usando este método
+    // (deve usar setUserRole que tem verificações adicionais de segurança)
+    const { role, ...restOfUserData } = userData;
+    
+    const updatedUser = { ...existingUser, ...restOfUserData };
+    this.usersMap.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async deleteUser(id: number): Promise<boolean> {
+    // Não permitir a exclusão do admin master (id = 1)
+    if (id === 1) return false;
+    return this.usersMap.delete(id);
+  }
+  
+  async setUserRole(id: number, role: string, adminId: number): Promise<User | undefined> {
+    // Verificar se o usuário que quer alterar a função é o admin master
+    const isAdminMaster = await this.isAdminMaster(adminId);
+    const targetUser = await this.getUser(id);
+    
+    if (!targetUser) return undefined;
+    
+    // Regras de permissão:
+    // 1. Somente admin_master pode promover/rebaixar outros usuários
+    // 2. Ninguém pode mudar o papel do admin_master (id = 1)
+    if (id === 1) return targetUser; // Não permitir alteração do admin master
+    
+    if (!isAdminMaster && role === "admin_master") return targetUser; // Somente admin master pode criar outro admin master
+    if (!isAdminMaster && role === "admin") return targetUser; // Somente admin master pode criar admins
+    
+    const updatedUser = { ...targetUser, role };
+    this.usersMap.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async isAdminMaster(id: number): Promise<boolean> {
+    const user = await this.getUser(id);
+    return user?.role === "admin_master";
   }
 
   // Category methods
