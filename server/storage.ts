@@ -84,63 +84,73 @@ export class MemStorage implements IStorage {
 
   private initializeData() {
     // Create admin user
-    this.createUser({
+    this.usersMap.set(this.userIdCounter++, {
+      id: 1,
       username: "admin",
-      password: "$2b$10$9S/AcQ1F0memV.qJJ1iHCuRyjkYfUOdu7.2JrcqDL0cfX3BeIkx7O", // "admin123"
-      name: "Admin User",
+      password: "b105f7d33c293d092ad46e7995d7fd2b246a7d25abf87ad50fcbb36ffa6f0e53999c0ef6d21a3bbac7fdaa1157ac89eaaa838f37c5c48a8f127f4ddf535eb4e6.f95d7b34ba67c2bcd30c71d9c645eccf", // "admin123"
+      name: "Administrador",
       email: "admin@bellapizza.com",
-      role: "admin"
+      role: "admin",
+      createdAt: new Date()
     });
 
     // Create a customer user
-    this.createUser({
-      username: "customer",
-      password: "$2b$10$9S/AcQ1F0memV.qJJ1iHCuRyjkYfUOdu7.2JrcqDL0cfX3BeIkx7O", // "admin123"
-      name: "Test Customer",
-      email: "customer@example.com",
-      role: "customer"
+    this.usersMap.set(this.userIdCounter++, {
+      id: 2,
+      username: "cliente",
+      password: "b105f7d33c293d092ad46e7995d7fd2b246a7d25abf87ad50fcbb36ffa6f0e53999c0ef6d21a3bbac7fdaa1157ac89eaaa838f37c5c48a8f127f4ddf535eb4e6.f95d7b34ba67c2bcd30c71d9c645eccf", // "admin123"
+      name: "Cliente Teste",
+      email: "cliente@exemplo.com",
+      role: "customer",
+      createdAt: new Date()
     });
 
     // Create categories
-    const pizzasCategory = this.createCategory({ name: "Pizzas", slug: "pizzas" });
-    const sidesCategory = this.createCategory({ name: "Sides", slug: "sides" });
-    const drinksCategory = this.createCategory({ name: "Drinks", slug: "drinks" });
-    const dessertsCategory = this.createCategory({ name: "Desserts", slug: "desserts" });
+    const pizzasCategory: Category = { id: this.categoryIdCounter++, name: "Pizzas", slug: "pizzas" };
+    const sidesCategory: Category = { id: this.categoryIdCounter++, name: "Acompanhamentos", slug: "sides" };
+    const drinksCategory: Category = { id: this.categoryIdCounter++, name: "Bebidas", slug: "drinks" };
+    const dessertsCategory: Category = { id: this.categoryIdCounter++, name: "Sobremesas", slug: "desserts" };
+    
+    // Add categories to map
+    this.categoriesMap.set(pizzasCategory.id, pizzasCategory);
+    this.categoriesMap.set(sidesCategory.id, sidesCategory);
+    this.categoriesMap.set(drinksCategory.id, drinksCategory);
+    this.categoriesMap.set(dessertsCategory.id, dessertsCategory);
 
     // Create menu items
     this.createMenuItem({
-      name: "Margherita Pizza",
-      description: "Fresh tomatoes, mozzarella cheese, fresh basil, salt, and extra-virgin olive oil.",
+      name: "Pizza Margherita",
+      description: "Tomates frescos, queijo mussarela, manjericão fresco, sal e azeite de oliva extra-virgem.",
       price: 12.99,
       imageUrl: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
       categoryId: pizzasCategory.id,
-      tags: ["Veggie", "Popular"],
+      tags: ["Vegetariana", "Popular"],
       featured: true
     });
 
     this.createMenuItem({
-      name: "Pepperoni Pizza",
-      description: "Tomato sauce, mozzarella cheese, and delicious pepperoni slices.",
+      name: "Pizza de Pepperoni",
+      description: "Molho de tomate, queijo mussarela e deliciosas fatias de pepperoni.",
       price: 14.99,
       imageUrl: "https://images.unsplash.com/photo-1595708684082-a173bb3a06c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
       categoryId: pizzasCategory.id,
-      tags: ["Bestseller"],
+      tags: ["Mais Vendida"],
       featured: true
     });
 
     this.createMenuItem({
-      name: "Supreme Pizza",
-      description: "Pepperoni, sausage, bell peppers, onions, black olives, mushrooms and extra cheese.",
+      name: "Pizza Suprema",
+      description: "Pepperoni, linguiça, pimentões, cebolas, azeitonas pretas, cogumelos e queijo extra.",
       price: 16.99,
       imageUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
       categoryId: pizzasCategory.id,
-      tags: ["Special"],
+      tags: ["Especial"],
       featured: true
     });
 
     this.createMenuItem({
-      name: "BBQ Chicken Pizza",
-      description: "BBQ sauce, grilled chicken, red onions, and cilantro with a blend of mozzarella and gouda.",
+      name: "Pizza de Frango com Barbecue",
+      description: "Molho barbecue, frango grelhado, cebola roxa e coentro com uma mistura de queijos mussarela e gouda.",
       price: 15.99,
       imageUrl: "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
       categoryId: pizzasCategory.id,
@@ -149,28 +159,28 @@ export class MemStorage implements IStorage {
     });
 
     this.createMenuItem({
-      name: "Veggie Supreme",
-      description: "Mushrooms, green peppers, onions, black olives, tomatoes on a bed of mozzarella cheese.",
+      name: "Suprema Vegetariana",
+      description: "Cogumelos, pimentões verdes, cebolas, azeitonas pretas, tomates sobre uma camada de queijo mussarela.",
       price: 13.99,
       imageUrl: "https://images.unsplash.com/photo-1605478371310-a9f1e96b4ff4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
       categoryId: pizzasCategory.id,
-      tags: ["Veggie"],
+      tags: ["Vegetariana"],
       featured: false
     });
 
     this.createMenuItem({
-      name: "Buffalo Chicken",
-      description: "Spicy buffalo sauce, grilled chicken, red onions, and ranch drizzle.",
+      name: "Frango Buffalo",
+      description: "Molho buffalo picante, frango grelhado, cebola roxa e molho ranch.",
       price: 15.99,
       imageUrl: "https://images.unsplash.com/photo-1593246049226-ded77bf90326?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
       categoryId: pizzasCategory.id,
-      tags: ["Spicy"],
+      tags: ["Picante"],
       featured: false
     });
 
     this.createMenuItem({
-      name: "Garlic Bread",
-      description: "Oven-baked bread with garlic butter and herbs.",
+      name: "Pão de Alho",
+      description: "Pão assado no forno com manteiga de alho e ervas.",
       price: 4.99,
       imageUrl: "https://images.unsplash.com/photo-1619894991209-30b97fce9a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
       categoryId: sidesCategory.id,
@@ -179,8 +189,8 @@ export class MemStorage implements IStorage {
     });
 
     this.createMenuItem({
-      name: "Cola (2L)",
-      description: "Refreshing cola beverage.",
+      name: "Refrigerante Cola (2L)",
+      description: "Refrigerante refrescante de cola.",
       price: 2.99,
       imageUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
       categoryId: drinksCategory.id,
@@ -190,8 +200,8 @@ export class MemStorage implements IStorage {
 
     // Create special offers
     this.createSpecialOffer({
-      name: "Family Deal",
-      description: "2 Large Pizzas, 1 Side, and a 2L Drink",
+      name: "Combo Família",
+      description: "2 Pizzas Grandes, 1 Acompanhamento e um Refrigerante de 2L",
       price: 29.99,
       originalPrice: 42.99,
       imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400&q=80",
@@ -199,8 +209,8 @@ export class MemStorage implements IStorage {
     });
 
     this.createSpecialOffer({
-      name: "Lunch Special",
-      description: "1 Medium Pizza and Drink",
+      name: "Especial do Almoço",
+      description: "1 Pizza Média e Bebida",
       price: 11.99,
       originalPrice: 16.99,
       imageUrl: "https://images.unsplash.com/photo-1594007654729-407eedc4fe0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400&q=80",

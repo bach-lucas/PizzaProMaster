@@ -64,8 +64,8 @@ export default function MenuPage() {
       <main className="flex-grow">
         <section className="bg-[#D73C2C] text-white py-8">
           <div className="container mx-auto px-4">
-            <h1 className="font-heading font-bold text-3xl md:text-4xl text-center">Our Menu</h1>
-            <p className="text-center mt-2">Handcrafted with premium ingredients and baked to perfection</p>
+            <h1 className="font-heading font-bold text-3xl md:text-4xl text-center">Nosso Cardápio</h1>
+            <p className="text-center mt-2">Preparado com ingredientes premium e assado à perfeição</p>
           </div>
         </section>
 
@@ -87,7 +87,7 @@ export default function MenuPage() {
                       className={`tab ${activeCategory === "all" ? "active-tab" : ""} mx-2 px-4 py-2 whitespace-nowrap font-heading text-lg`}
                       onClick={() => handleCategoryChange("all")}
                     >
-                      All Items
+                      Todos os Itens
                     </TabsTrigger>
                     
                     {categories?.map((category) => (
@@ -106,7 +106,7 @@ export default function MenuPage() {
                       className={`tab ${activeCategory === "offers" ? "active-tab" : ""} mx-2 px-4 py-2 whitespace-nowrap font-heading text-lg`}
                       onClick={() => handleCategoryChange("offers")}
                     >
-                      Special Offers
+                      Ofertas Especiais
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -126,7 +126,7 @@ export default function MenuPage() {
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">No special offers available at this time.</p>
+                    <p className="text-gray-500">Não há ofertas especiais disponíveis no momento.</p>
                   </div>
                 )}
               </div>
@@ -143,7 +143,7 @@ export default function MenuPage() {
                   ))
                 ) : (
                   <div className="col-span-3 text-center py-8">
-                    <p className="text-gray-500">No menu items found in this category.</p>
+                    <p className="text-gray-500">Nenhum item encontrado nesta categoria.</p>
                   </div>
                 )}
               </div>
