@@ -41,6 +41,8 @@ interface AdminLogWithUserInfo extends AdminLog {
   };
 }
 
+import { AdminLayout } from "@/components/layout/admin-layout";
+
 export default function AdminLogs() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
@@ -139,19 +141,7 @@ export default function AdminLogs() {
   };
 
   return (
-    <div className="container py-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Logs de Administrador</h1>
-        <Link href="/admin">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1"
-          >
-            <ChevronLeft className="h-4 w-4" /> Voltar
-          </Button>
-        </Link>
-      </div>
+    <AdminLayout title="Logs de Administrador" showBackButton backButtonDestination="/admin">
       <Card>
         <CardHeader>
           <CardDescription>
@@ -242,6 +232,6 @@ export default function AdminLogs() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminLayout>
   );
 }

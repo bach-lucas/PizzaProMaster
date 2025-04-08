@@ -340,6 +340,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orderValidated = insertOrderSchema.parse(orderData);
       const newOrder = await storage.createOrder(orderValidated);
       
+      // Enviar notificação de pedido criado
+      try {
+        const { notificationService } = await import("./services/notification");
+        notificationService.notifyOrderCreated(newOrder, req.user);
+      } catch (notifyError) {
+        console.error("Erro ao enviar notificação de pedido criado:", notifyError);
+        // Não interrompe o fluxo se a notificação falhar
+      }
+      
       res.status(201).json(newOrder);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -369,6 +378,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!updatedOrder) {
         return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Enviar notificação de atualização de status
+      try {
+        // Buscar o usuário que fez o pedido
+        const user = await storage.getUser(updatedOrder.userId || 0);
+        if (user) {
+          const { notificationService } = await import("./services/notification");
+          await notificationService.notifyOrderStatusUpdated(updatedOrder, user);
+        }
+      } catch (notifyError) {
+        console.error("Erro ao enviar notificação de status atualizado:", notifyError);
+        // Não interrompe o fluxo se a notificação falhar
       }
       
       res.json(updatedOrder);

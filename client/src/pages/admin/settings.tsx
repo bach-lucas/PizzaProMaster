@@ -75,6 +75,8 @@ interface SystemSettings {
 }
 
 // Componente principal da página de configurações
+import { AdminLayout } from "@/components/layout/admin-layout";
+
 export default function SettingsPage() {
   const { toast } = useToast();
   const { logAction } = useAdminLogs();
@@ -104,10 +106,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <h1 className="text-3xl font-bold mb-6">Configurações do Sistema</h1>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+    <AdminLayout title="Configurações do Sistema">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-4 mb-8">
           <TabsTrigger value="business-hours" className="flex items-center">
             <Clock className="mr-2 h-4 w-4" />
@@ -159,7 +159,7 @@ export default function SettingsPage() {
           </>
         )}
       </Tabs>
-    </div>
+    </AdminLayout>
   );
 }
 
