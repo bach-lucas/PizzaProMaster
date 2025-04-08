@@ -14,6 +14,9 @@ import {
   orders,
   type Order,
   type InsertOrder,
+  addresses,
+  type Address,
+  type InsertAddress,
   type PizzaBase,
   type PizzaSize,
   type PizzaCrust,
@@ -40,6 +43,14 @@ export interface IStorage {
   deleteUser(id: number): Promise<boolean>;
   setUserRole(id: number, role: string, adminId: number): Promise<User | undefined>;
   isAdminMaster(id: number): Promise<boolean>;
+  
+  // Address operations
+  getUserAddresses(userId: number): Promise<Address[]>;
+  getAddressById(id: number): Promise<Address | undefined>;
+  createAddress(address: InsertAddress): Promise<Address>;
+  updateAddress(id: number, addressData: Partial<InsertAddress>): Promise<Address | undefined>;
+  deleteAddress(id: number): Promise<boolean>;
+  clearFavoriteAddresses(userId: number): Promise<void>;
 
   // Category operations
   getCategory(id: number): Promise<Category | undefined>;
@@ -100,6 +111,7 @@ export class MemStorage implements IStorage {
   private menuItemsMap: Map<number, MenuItem>;
   private specialOffersMap: Map<number, SpecialOffer>;
   private ordersMap: Map<number, Order>;
+  private addressesMap: Map<number, Address>;
 
   sessionStore: any; // Usando any para o tipo do sessionStore para evitar problemas de tipagem
 
@@ -108,6 +120,7 @@ export class MemStorage implements IStorage {
   private menuItemIdCounter = 1;
   private specialOfferIdCounter = 1;
   private orderIdCounter = 1;
+  private addressIdCounter = 1;
 
   constructor() {
     this.usersMap = new Map();
@@ -115,6 +128,7 @@ export class MemStorage implements IStorage {
     this.menuItemsMap = new Map();
     this.specialOffersMap = new Map();
     this.ordersMap = new Map();
+    this.addressesMap = new Map();
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000, // prune expired entries every 24h
     });
@@ -855,6 +869,51 @@ export class MemStorage implements IStorage {
       return acc;
     }, {} as Record<string, PizzaTopping[]>);
   }
+
+  // Address methods
+  async getUserAddresses(userId: number): Promise<Address[]> {
+    return Array.from(this.addressesMap.values()).filter(
+      (address) => address.userId === userId
+    );
+  }
+
+  async getAddressById(id: number): Promise<Address | undefined> {
+    return this.addressesMap.get(id);
+  }
+
+  async createAddress(address: InsertAddress): Promise<Address> {
+    const id = this.addressIdCounter++;
+    const now = new Date();
+    const newAddress: Address = {
+      ...address,
+      id,
+      createdAt: now
+    };
+    this.addressesMap.set(id, newAddress);
+    return newAddress;
+  }
+
+  async updateAddress(id: number, addressData: Partial<InsertAddress>): Promise<Address | undefined> {
+    const existingAddress = this.addressesMap.get(id);
+    if (!existingAddress) return undefined;
+
+    const updatedAddress = { ...existingAddress, ...addressData };
+    this.addressesMap.set(id, updatedAddress);
+    return updatedAddress;
+  }
+
+  async deleteAddress(id: number): Promise<boolean> {
+    return this.addressesMap.delete(id);
+  }
+
+  async clearFavoriteAddresses(userId: number): Promise<void> {
+    const userAddresses = await this.getUserAddresses(userId);
+    for (const address of userAddresses) {
+      if (address.isFavorite) {
+        await this.updateAddress(address.id, { isFavorite: false });
+      }
+    }
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1170,6 +1229,43 @@ export class DatabaseStorage implements IStorage {
       acc[topping.category].push(topping);
       return acc;
     }, {} as Record<string, PizzaTopping[]>);
+  }
+  
+  // Address methods implementation for PostgreSQL
+  async getUserAddresses(userId: number): Promise<Address[]> {
+    return db.select().from(addresses).where(eq(addresses.userId, userId));
+  }
+
+  async getAddressById(id: number): Promise<Address | undefined> {
+    const [address] = await db.select().from(addresses).where(eq(addresses.id, id));
+    return address;
+  }
+
+  async createAddress(address: InsertAddress): Promise<Address> {
+    const [newAddress] = await db.insert(addresses).values(address).returning();
+    return newAddress;
+  }
+
+  async updateAddress(id: number, addressData: Partial<InsertAddress>): Promise<Address | undefined> {
+    const [updatedAddress] = await db
+      .update(addresses)
+      .set(addressData)
+      .where(eq(addresses.id, id))
+      .returning();
+    
+    return updatedAddress;
+  }
+
+  async deleteAddress(id: number): Promise<boolean> {
+    const result = await db.delete(addresses).where(eq(addresses.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async clearFavoriteAddresses(userId: number): Promise<void> {
+    await db
+      .update(addresses)
+      .set({ isFavorite: false })
+      .where(and(eq(addresses.userId, userId), eq(addresses.isFavorite, true)));
   }
 }
 

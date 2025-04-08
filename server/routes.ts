@@ -8,7 +8,8 @@ import {
   insertCategorySchema, 
   insertSpecialOfferSchema,
   insertOrderSchema,
-  orderItemSchema
+  orderItemSchema,
+  insertAddressSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -661,6 +662,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(toppingsByCategory);
     } catch (error) {
       res.status(500).json({ message: "Error fetching pizza toppings by category" });
+    }
+  });
+
+  // Endereços de entrega (Cliente)
+  
+  // Obter endereços do usuário
+  app.get("/api/addresses", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Você precisa estar logado para ver seus endereços" });
+      }
+      
+      const userAddresses = await storage.getUserAddresses(req.user.id);
+      res.json(userAddresses);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar endereços" });
+    }
+  });
+  
+  // Adicionar um novo endereço
+  app.post("/api/addresses", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Você precisa estar logado para adicionar um endereço" });
+      }
+      
+      // Verificar se o usuário já tem 3 endereços cadastrados
+      const userAddresses = await storage.getUserAddresses(req.user.id);
+      if (userAddresses.length >= 3) {
+        return res.status(400).json({ message: "Você já possui o limite máximo de 3 endereços cadastrados" });
+      }
+      
+      // Se o endereço estiver marcado como favorito, desmarcar os outros
+      if (req.body.isFavorite) {
+        await storage.clearFavoriteAddresses(req.user.id);
+      }
+      
+      const addressData = {
+        ...req.body,
+        userId: req.user.id
+      };
+      
+      const validatedAddress = insertAddressSchema.parse(addressData);
+      const newAddress = await storage.createAddress(validatedAddress);
+      
+      res.status(201).json(newAddress);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      res.status(500).json({ message: "Erro ao adicionar endereço" });
+    }
+  });
+  
+  // Atualizar um endereço
+  app.put("/api/addresses/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Você precisa estar logado para atualizar um endereço" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID de endereço inválido" });
+      }
+      
+      // Verificar se o endereço pertence ao usuário
+      const address = await storage.getAddressById(id);
+      if (!address) {
+        return res.status(404).json({ message: "Endereço não encontrado" });
+      }
+      
+      if (address.userId !== req.user.id) {
+        return res.status(403).json({ message: "Você não tem permissão para editar este endereço" });
+      }
+      
+      // Se o endereço estiver sendo marcado como favorito, desmarcar os outros
+      if (req.body.isFavorite && !address.isFavorite) {
+        await storage.clearFavoriteAddresses(req.user.id);
+      }
+      
+      const updatedAddress = await storage.updateAddress(id, req.body);
+      if (!updatedAddress) {
+        return res.status(404).json({ message: "Endereço não encontrado" });
+      }
+      
+      res.json(updatedAddress);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      res.status(500).json({ message: "Erro ao atualizar endereço" });
+    }
+  });
+  
+  // Excluir um endereço
+  app.delete("/api/addresses/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Você precisa estar logado para excluir um endereço" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID de endereço inválido" });
+      }
+      
+      // Verificar se o endereço pertence ao usuário
+      const address = await storage.getAddressById(id);
+      if (!address) {
+        return res.status(404).json({ message: "Endereço não encontrado" });
+      }
+      
+      if (address.userId !== req.user.id) {
+        return res.status(403).json({ message: "Você não tem permissão para excluir este endereço" });
+      }
+      
+      const success = await storage.deleteAddress(id);
+      if (!success) {
+        return res.status(404).json({ message: "Endereço não encontrado" });
+      }
+      
+      res.json({ message: "Endereço excluído com sucesso" });
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao excluir endereço" });
+    }
+  });
+  
+  // Definir endereço como favorito
+  app.put("/api/addresses/:id/favorite", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Você precisa estar logado para marcar um endereço como favorito" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID de endereço inválido" });
+      }
+      
+      // Verificar se o endereço pertence ao usuário
+      const address = await storage.getAddressById(id);
+      if (!address) {
+        return res.status(404).json({ message: "Endereço não encontrado" });
+      }
+      
+      if (address.userId !== req.user.id) {
+        return res.status(403).json({ message: "Você não tem permissão para editar este endereço" });
+      }
+      
+      // Desmarcar todos os endereços como favorito primeiro
+      await storage.clearFavoriteAddresses(req.user.id);
+      
+      // Marcar este endereço como favorito
+      const updatedAddress = await storage.updateAddress(id, { isFavorite: true });
+      if (!updatedAddress) {
+        return res.status(404).json({ message: "Endereço não encontrado" });
+      }
+      
+      res.json(updatedAddress);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao marcar endereço como favorito" });
     }
   });
 
