@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, ChevronLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -125,6 +125,17 @@ export default function AdminLogs() {
 
   return (
     <div className="container py-6">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Logs de Administrador</h1>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.history.back()}
+          className="flex items-center gap-1"
+        >
+          <ChevronLeft className="h-4 w-4" /> Voltar
+        </Button>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Logs de Administrador</CardTitle>
