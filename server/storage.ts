@@ -894,8 +894,16 @@ export class MemStorage implements IStorage {
     const id = this.addressIdCounter++;
     const now = new Date();
     const newAddress: Address = {
-      ...address,
       id,
+      userId: address.userId,
+      street: address.street,
+      number: address.number,
+      complement: address.complement ?? null,
+      neighborhood: address.neighborhood,
+      city: address.city,
+      state: address.state,
+      zipCode: address.zipCode,
+      isFavorite: address.isFavorite ?? null,
       createdAt: now
     };
     this.addressesMap.set(id, newAddress);

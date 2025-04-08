@@ -43,7 +43,7 @@ interface AdminLogWithUserInfo extends AdminLog {
 export default function AdminLogs() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [actionFilter, setActionFilter] = useState<string>("");
+  const [actionFilter, setActionFilter] = useState<string>("all");
 
   const { data: logs, isLoading, error } = useQuery<AdminLogWithUserInfo[]>({
     queryKey: ["/api/admin/logs"],
@@ -71,7 +71,7 @@ export default function AdminLogs() {
           log.admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           log.admin.username.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesAction = actionFilter === "" || log.action === actionFilter;
+        const matchesAction = actionFilter === "all" || log.action === actionFilter;
 
         return matchesSearch && matchesAction;
       })
@@ -150,7 +150,7 @@ export default function AdminLogs() {
                 <SelectValue placeholder="Tipo de ação" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as ações</SelectItem>
+                <SelectItem value="all">Todas as ações</SelectItem>
                 {uniqueActions.map((action) => (
                   <SelectItem key={action} value={action}>
                     {actionLabels[action] || action}
