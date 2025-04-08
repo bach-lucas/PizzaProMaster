@@ -24,7 +24,14 @@ import {
   type PizzaSize,
   type PizzaCrust,
   type PizzaSauce,
-  type PizzaTopping
+  type PizzaTopping,
+  systemSettings,
+  type SystemSetting,
+  type InsertSystemSetting,
+  type BusinessHours,
+  type DeliverySettings,
+  type OrderSettings,
+  type GeneralPreferences
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, inArray, or, isNull } from "drizzle-orm";
@@ -107,6 +114,27 @@ export interface IStorage {
   getPizzaSauces(): Promise<PizzaSauce[]>;
   getPizzaToppings(): Promise<PizzaTopping[]>;
   getPizzaToppingsByCategory(): Promise<Record<string, PizzaTopping[]>>;
+
+  // System settings operations
+  getSystemSetting<T>(key: string): Promise<T | undefined>;
+  setSystemSetting<T>(key: string, value: T, userId: number): Promise<SystemSetting>;
+  getAllSystemSettings(): Promise<SystemSetting[]>;
+  
+  // Business hours operations
+  getBusinessHours(): Promise<BusinessHours>;
+  updateBusinessHours(hours: BusinessHours, userId: number): Promise<BusinessHours>;
+  
+  // Delivery settings operations
+  getDeliverySettings(): Promise<DeliverySettings>;
+  updateDeliverySettings(settings: DeliverySettings, userId: number): Promise<DeliverySettings>;
+  
+  // Order settings operations
+  getOrderSettings(): Promise<OrderSettings>;
+  updateOrderSettings(settings: OrderSettings, userId: number): Promise<OrderSettings>;
+  
+  // General preferences operations
+  getGeneralPreferences(): Promise<GeneralPreferences>;
+  updateGeneralPreferences(preferences: GeneralPreferences, userId: number): Promise<GeneralPreferences>;
 
   // Session store
   sessionStore: any; // Using any for session store type to avoid issues
@@ -934,6 +962,8 @@ export class MemStorage implements IStorage {
   
   // Admin log methods
   private adminLogIdCounter = 1;
+  private systemSettingsMap: Map<string, SystemSetting> = new Map();
+  private systemSettingsIdCounter = 1;
   
   async logAdminAction(adminLog: InsertAdminLog): Promise<AdminLog> {
     const id = this.adminLogIdCounter++;
@@ -955,6 +985,107 @@ export class MemStorage implements IStorage {
       return logs.filter(log => log.adminId === adminId);
     }
     return logs;
+  }
+
+  // System settings methods
+  async getSystemSetting<T>(key: string): Promise<T | undefined> {
+    const setting = this.systemSettingsMap.get(key);
+    return setting ? setting.value as T : undefined;
+  }
+
+  async setSystemSetting<T>(key: string, value: T, userId: number): Promise<SystemSetting> {
+    let setting = this.systemSettingsMap.get(key);
+    
+    if (setting) {
+      setting = {
+        ...setting,
+        value: value as any,
+        updatedAt: new Date(),
+        updatedBy: userId
+      };
+    } else {
+      const id = this.systemSettingsIdCounter++;
+      setting = {
+        id,
+        key,
+        value: value as any,
+        updatedAt: new Date(),
+        updatedBy: userId
+      };
+    }
+    
+    this.systemSettingsMap.set(key, setting);
+    return setting;
+  }
+
+  async getAllSystemSettings(): Promise<SystemSetting[]> {
+    return Array.from(this.systemSettingsMap.values());
+  }
+
+  // Business hours methods
+  async getBusinessHours(): Promise<BusinessHours> {
+    const hours = await this.getSystemSetting<BusinessHours>('businessHours');
+    return hours || {
+      monday: { open: '10:00', close: '22:00', isClosed: false },
+      tuesday: { open: '10:00', close: '22:00', isClosed: false },
+      wednesday: { open: '10:00', close: '22:00', isClosed: false },
+      thursday: { open: '10:00', close: '22:00', isClosed: false },
+      friday: { open: '10:00', close: '23:00', isClosed: false },
+      saturday: { open: '10:00', close: '23:00', isClosed: false },
+      sunday: { open: '12:00', close: '22:00', isClosed: false },
+      isManualClosed: false
+    };
+  }
+
+  async updateBusinessHours(hours: BusinessHours, userId: number): Promise<BusinessHours> {
+    await this.setSystemSetting('businessHours', hours, userId);
+    return hours;
+  }
+
+  // Delivery settings methods
+  async getDeliverySettings(): Promise<DeliverySettings> {
+    const settings = await this.getSystemSetting<DeliverySettings>('deliverySettings');
+    return settings || {
+      fee: 5.00,
+      estimatedTime: 45,
+      minimumOrderValue: 15.00,
+      supportedNeighborhoods: ['Centro', 'Jardim América', 'Vila Nova']
+    };
+  }
+
+  async updateDeliverySettings(settings: DeliverySettings, userId: number): Promise<DeliverySettings> {
+    await this.setSystemSetting('deliverySettings', settings, userId);
+    return settings;
+  }
+
+  // Order settings methods
+  async getOrderSettings(): Promise<OrderSettings> {
+    const settings = await this.getSystemSetting<OrderSettings>('orderSettings');
+    return settings || {
+      allowDelivery: true,
+      allowPickup: true,
+      estimatedPickupTime: 20
+    };
+  }
+
+  async updateOrderSettings(settings: OrderSettings, userId: number): Promise<OrderSettings> {
+    await this.setSystemSetting('orderSettings', settings, userId);
+    return settings;
+  }
+
+  // General preferences methods
+  async getGeneralPreferences(): Promise<GeneralPreferences> {
+    const preferences = await this.getSystemSetting<GeneralPreferences>('generalPreferences');
+    return preferences || {
+      newOrderSound: true,
+      showAlerts: true,
+      sendCustomerNotifications: false
+    };
+  }
+
+  async updateGeneralPreferences(preferences: GeneralPreferences, userId: number): Promise<GeneralPreferences> {
+    await this.setSystemSetting('generalPreferences', preferences, userId);
+    return preferences;
   }
 }
 
@@ -1321,6 +1452,134 @@ export class DatabaseStorage implements IStorage {
       return db.select().from(adminLogs).where(eq(adminLogs.adminId, adminId)).orderBy(desc(adminLogs.createdAt));
     }
     return db.select().from(adminLogs).orderBy(desc(adminLogs.createdAt));
+  }
+
+  // System settings methods
+  async getSystemSetting<T>(key: string): Promise<T | undefined> {
+    try {
+      const [setting] = await db
+        .select()
+        .from(systemSettings)
+        .where(eq(systemSettings.key, key));
+      
+      return setting ? setting.value as T : undefined;
+    } catch (error) {
+      console.error("Erro ao buscar configuração:", error);
+      return undefined;
+    }
+  }
+
+  async setSystemSetting<T>(key: string, value: T, userId: number): Promise<SystemSetting> {
+    try {
+      // Verificar se a configuração já existe
+      const existingSetting = await this.getSystemSetting(key);
+      
+      if (existingSetting !== undefined) {
+        // Atualizar configuração existente
+        const [updatedSetting] = await db
+          .update(systemSettings)
+          .set({ 
+            value: value as any, 
+            updatedAt: new Date(),
+            updatedBy: userId 
+          })
+          .where(eq(systemSettings.key, key))
+          .returning();
+        
+        return updatedSetting;
+      } else {
+        // Criar nova configuração
+        const [newSetting] = await db
+          .insert(systemSettings)
+          .values({
+            key,
+            value: value as any,
+            updatedAt: new Date(),
+            updatedBy: userId
+          })
+          .returning();
+        
+        return newSetting;
+      }
+    } catch (error) {
+      console.error("Erro ao salvar configuração:", error);
+      throw error;
+    }
+  }
+
+  async getAllSystemSettings(): Promise<SystemSetting[]> {
+    try {
+      return await db.select().from(systemSettings);
+    } catch (error) {
+      console.error("Erro ao buscar todas as configurações:", error);
+      return [];
+    }
+  }
+
+  // Business hours methods
+  async getBusinessHours(): Promise<BusinessHours> {
+    const hours = await this.getSystemSetting<BusinessHours>('businessHours');
+    return hours || {
+      monday: { open: '10:00', close: '22:00', isClosed: false },
+      tuesday: { open: '10:00', close: '22:00', isClosed: false },
+      wednesday: { open: '10:00', close: '22:00', isClosed: false },
+      thursday: { open: '10:00', close: '22:00', isClosed: false },
+      friday: { open: '10:00', close: '23:00', isClosed: false },
+      saturday: { open: '10:00', close: '23:00', isClosed: false },
+      sunday: { open: '12:00', close: '22:00', isClosed: false },
+      isManualClosed: false
+    };
+  }
+
+  async updateBusinessHours(hours: BusinessHours, userId: number): Promise<BusinessHours> {
+    await this.setSystemSetting('businessHours', hours, userId);
+    return hours;
+  }
+
+  // Delivery settings methods
+  async getDeliverySettings(): Promise<DeliverySettings> {
+    const settings = await this.getSystemSetting<DeliverySettings>('deliverySettings');
+    return settings || {
+      fee: 5.00,
+      estimatedTime: 45,
+      minimumOrderValue: 15.00,
+      supportedNeighborhoods: ['Centro', 'Jardim América', 'Vila Nova']
+    };
+  }
+
+  async updateDeliverySettings(settings: DeliverySettings, userId: number): Promise<DeliverySettings> {
+    await this.setSystemSetting('deliverySettings', settings, userId);
+    return settings;
+  }
+
+  // Order settings methods
+  async getOrderSettings(): Promise<OrderSettings> {
+    const settings = await this.getSystemSetting<OrderSettings>('orderSettings');
+    return settings || {
+      allowDelivery: true,
+      allowPickup: true,
+      estimatedPickupTime: 20
+    };
+  }
+
+  async updateOrderSettings(settings: OrderSettings, userId: number): Promise<OrderSettings> {
+    await this.setSystemSetting('orderSettings', settings, userId);
+    return settings;
+  }
+
+  // General preferences methods
+  async getGeneralPreferences(): Promise<GeneralPreferences> {
+    const preferences = await this.getSystemSetting<GeneralPreferences>('generalPreferences');
+    return preferences || {
+      newOrderSound: true,
+      showAlerts: true,
+      sendCustomerNotifications: false
+    };
+  }
+
+  async updateGeneralPreferences(preferences: GeneralPreferences, userId: number): Promise<GeneralPreferences> {
+    await this.setSystemSetting('generalPreferences', preferences, userId);
+    return preferences;
   }
 }
 

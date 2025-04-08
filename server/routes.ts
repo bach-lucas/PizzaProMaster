@@ -912,6 +912,176 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sistema de Configurações - rotas
+  // Rota para buscar as configurações de horário de funcionamento
+  app.get("/api/settings/business-hours", async (req, res) => {
+    try {
+      const businessHours = await storage.getBusinessHours();
+      res.json(businessHours);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar horários de funcionamento" });
+    }
+  });
+
+  // Rota para atualizar as configurações de horário de funcionamento (apenas admin)
+  app.put("/api/settings/business-hours", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+
+      const hours = req.body;
+      const updated = await storage.updateBusinessHours(hours, req.user.id);
+      
+      // Registrar ação no log de administração
+      await storage.logAdminAction({
+        adminId: req.user.id,
+        action: "update",
+        entityType: "settings",
+        details: "Atualização de horário de funcionamento",
+        ipAddress: req.ip
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao atualizar horários de funcionamento" });
+    }
+  });
+  
+  // Rota para buscar as configurações de entrega
+  app.get("/api/settings/delivery", async (req, res) => {
+    try {
+      const deliverySettings = await storage.getDeliverySettings();
+      res.json(deliverySettings);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar configurações de entrega" });
+    }
+  });
+
+  // Rota para atualizar as configurações de entrega (apenas admin)
+  app.put("/api/settings/delivery", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+
+      const settings = req.body;
+      const updated = await storage.updateDeliverySettings(settings, req.user.id);
+      
+      // Registrar ação no log de administração
+      await storage.logAdminAction({
+        adminId: req.user.id,
+        action: "update",
+        entityType: "settings",
+        details: "Atualização de configurações de entrega",
+        ipAddress: req.ip
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao atualizar configurações de entrega" });
+    }
+  });
+  
+  // Rota para buscar as configurações de pedidos
+  app.get("/api/settings/orders", async (req, res) => {
+    try {
+      const orderSettings = await storage.getOrderSettings();
+      res.json(orderSettings);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar configurações de pedidos" });
+    }
+  });
+
+  // Rota para atualizar as configurações de pedidos (apenas admin)
+  app.put("/api/settings/orders", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+
+      const settings = req.body;
+      const updated = await storage.updateOrderSettings(settings, req.user.id);
+      
+      // Registrar ação no log de administração
+      await storage.logAdminAction({
+        adminId: req.user.id,
+        action: "update",
+        entityType: "settings",
+        details: "Atualização de configurações de pedidos",
+        ipAddress: req.ip
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao atualizar configurações de pedidos" });
+    }
+  });
+  
+  // Rota para buscar as preferências gerais
+  app.get("/api/settings/preferences", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
+      const preferences = await storage.getGeneralPreferences();
+      res.json(preferences);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar preferências gerais" });
+    }
+  });
+
+  // Rota para atualizar as preferências gerais (apenas admin)
+  app.put("/api/settings/preferences", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+
+      const preferences = req.body;
+      const updated = await storage.updateGeneralPreferences(preferences, req.user.id);
+      
+      // Registrar ação no log de administração
+      await storage.logAdminAction({
+        adminId: req.user.id,
+        action: "update",
+        entityType: "settings",
+        details: "Atualização de preferências gerais",
+        ipAddress: req.ip
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao atualizar preferências gerais" });
+    }
+  });
+  
+  // Rota para obter todas as configurações do sistema (apenas admin)
+  app.get("/api/settings", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
+      const [businessHours, deliverySettings, orderSettings, preferences] = await Promise.all([
+        storage.getBusinessHours(),
+        storage.getDeliverySettings(),
+        storage.getOrderSettings(),
+        storage.getGeneralPreferences()
+      ]);
+      
+      res.json({
+        businessHours,
+        deliverySettings,
+        orderSettings,
+        preferences
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar configurações do sistema" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

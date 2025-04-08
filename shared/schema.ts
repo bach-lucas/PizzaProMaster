@@ -209,3 +209,59 @@ export const insertAdminLogSchema = createInsertSchema(adminLogs).omit({
 
 export type AdminLog = typeof adminLogs.$inferSelect;
 export type InsertAdminLog = z.infer<typeof insertAdminLogSchema>;
+
+// System settings
+export const systemSettings = pgTable("system_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: jsonb("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: integer("updated_by").references(() => users.id),
+});
+
+export const insertSystemSettingsSchema = createInsertSchema(systemSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type SystemSetting = typeof systemSettings.$inferSelect;
+export type InsertSystemSetting = z.infer<typeof insertSystemSettingsSchema>;
+
+// Business hours schema
+export const businessHoursSchema = z.object({
+  monday: z.object({ open: z.string().optional(), close: z.string().optional(), isClosed: z.boolean().default(false) }),
+  tuesday: z.object({ open: z.string().optional(), close: z.string().optional(), isClosed: z.boolean().default(false) }),
+  wednesday: z.object({ open: z.string().optional(), close: z.string().optional(), isClosed: z.boolean().default(false) }),
+  thursday: z.object({ open: z.string().optional(), close: z.string().optional(), isClosed: z.boolean().default(false) }),
+  friday: z.object({ open: z.string().optional(), close: z.string().optional(), isClosed: z.boolean().default(false) }),
+  saturday: z.object({ open: z.string().optional(), close: z.string().optional(), isClosed: z.boolean().default(false) }),
+  sunday: z.object({ open: z.string().optional(), close: z.string().optional(), isClosed: z.boolean().default(false) }),
+  isManualClosed: z.boolean().default(false),
+});
+
+// Delivery settings schema
+export const deliverySettingsSchema = z.object({
+  fee: z.number().min(0).default(0),
+  estimatedTime: z.number().min(0).default(0),
+  minimumOrderValue: z.number().min(0).default(0),
+  supportedNeighborhoods: z.array(z.string()).default([]),
+});
+
+// Order settings schema
+export const orderSettingsSchema = z.object({
+  allowDelivery: z.boolean().default(true),
+  allowPickup: z.boolean().default(true),
+  estimatedPickupTime: z.number().min(0).default(0),
+});
+
+// General preferences schema
+export const generalPreferencesSchema = z.object({
+  newOrderSound: z.boolean().default(true),
+  showAlerts: z.boolean().default(true),
+  sendCustomerNotifications: z.boolean().default(false),
+});
+
+export type BusinessHours = z.infer<typeof businessHoursSchema>;
+export type DeliverySettings = z.infer<typeof deliverySettingsSchema>;
+export type OrderSettings = z.infer<typeof orderSettingsSchema>;
+export type GeneralPreferences = z.infer<typeof generalPreferencesSchema>;

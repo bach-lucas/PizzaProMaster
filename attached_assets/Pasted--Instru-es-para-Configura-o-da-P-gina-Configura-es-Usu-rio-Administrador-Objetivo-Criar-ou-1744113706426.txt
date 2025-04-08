@@ -1,0 +1,69 @@
+🔧 Instruções para Configuração da Página "Configurações" (Usuário Administrador)
+Objetivo: Criar ou atualizar uma página exclusiva de configurações para usuários administradores, com foco em controle do sistema e da operação da pizzaria. Essa funcionalidade não deve alterar ou remover elementos já existentes no site, apenas acrescentar a nova seção acessível após login como administrador.
+
+✅ Ações Esperadas:
+Criar uma nova rota/página chamada “Configurações” acessível somente para usuários com perfil administrador.
+
+Quando o administrador acessar essa página, exibir seções organizadas conforme abaixo:
+
+🕒 Horário de Funcionamento
+Permitir ao administrador definir os dias e horários de funcionamento da pizzaria.
+
+Se possível, exibir um botão para ativar/desativar o modo “fechado” manualmente (modo manutenção).
+
+Exibir aviso para os clientes caso tentem pedir fora do horário.
+
+🚚 Entregas
+Permitir configurar:
+
+Taxa fixa de entrega.
+
+Tempo médio estimado de entrega.
+
+Opção de bairros atendidos (lista com caixa de seleção ou campo de texto).
+
+Valor mínimo para entrega.
+
+🛍️ Pedido
+Opção para ativar ou desativar:
+
+Pedidos via delivery.
+
+Retirada no balcão.
+
+Definir tempo médio para retirada.
+
+👤 Administradores
+Listar todos os administradores existentes.
+
+O administrador master pode:
+
+Conceder permissões de administrador a outros usuários.
+
+Revogar o acesso de administradores.
+
+Remover administradores (exceto a si mesmo).
+
+🔐 Conta e Segurança
+Botão para alterar senha do administrador.
+
+Exibir histórico básico de login (opcional).
+
+Implementar autenticação extra somente se for possível sem afetar o fluxo de login existente.
+
+⚙️ Preferências Gerais
+Ativar ou desativar:
+
+Sons ou pop-ups ao receber novos pedidos.
+
+Exibição de alertas no topo do painel (por exemplo, sobre o horário de funcionamento).
+
+Envio de avisos para clientes (caso disponível via e-mail ou WhatsApp).
+
+⚠️ Observações:
+Não alterar elementos existentes nas páginas de cliente ou pedidos.
+
+Toda alteração deve ser aplicada apenas à página de administrador.
+
+As configurações devem ser salvas em banco de dados ou armazenamento apropriado, para manter persistência após logout.
+
