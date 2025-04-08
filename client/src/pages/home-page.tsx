@@ -22,36 +22,45 @@ export default function HomePage() {
       <Header />
       <main className="flex-grow">
         {/* Seção Principal */}
-        <section className="relative bg-[#D73C2C] text-white">
-          <div className="container mx-auto px-4 py-16 md:py-24">
-            <div className="max-w-3xl">
-              <h1 className="font-heading font-bold text-4xl md:text-5xl mb-4">
+        <section className="relative bg-[#D73C2C] text-white overflow-hidden">
+          <div className="container mx-auto px-4 py-16 md:py-24 relative z-10 hero-container">
+            <div className="max-w-3xl relative hero-text">
+              <h1 className="font-heading font-bold text-4xl md:text-5xl mb-4 text-shadow">
                 Pizza Italiana Autêntica Entregue Quentinha & Fresca
               </h1>
-              <p className="text-lg mb-8">
+              <p className="text-lg mb-8 text-shadow">
                 Feita artesanalmente com ingredientes premium e assada à perfeição em nossos fornos a lenha
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/menu">
-                  <Button className="bg-[#FFA41B] hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full">
+                  <Button className="bg-[#FFA41B] hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full drop-shadow-md">
                     Peça Agora
                   </Button>
                 </Link>
                 <Link href="/menu">
-                  <Button variant="outline" className="bg-transparent hover:bg-white hover:text-[#D73C2C] border-2 border-white text-white font-bold py-3 px-8 rounded-full">
+                  <Button variant="outline" className="bg-transparent hover:bg-white hover:text-[#D73C2C] border-2 border-white text-white font-bold py-3 px-8 rounded-full drop-shadow-md">
                     Ver Cardápio
                   </Button>
                 </Link>
               </div>
             </div>
           </div>
-          <div className="absolute bottom-0 right-0 w-full md:w-1/2 lg:w-2/5 h-full opacity-20 md:opacity-100">
-            <img 
-              src="https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
-              alt="Delicious pizza" 
-              className="object-cover h-full w-full"
-            />
+          
+          {/* Imagem em background com media queries para ajustar posicionamento */}
+          <div className="absolute top-0 right-0 w-full md:w-1/2 lg:w-2/5 h-full opacity-20 md:opacity-80 pointer-events-none hero-image">
+            <div className="relative w-full h-full md:left-16 xl:left-24">
+              <img 
+                src="https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                alt="Deliciosa pizza artesanal" 
+                className="object-cover h-full w-full md:rounded-l-[50px]"
+              />
+              {/* Gradiente sobreposto para melhorar legibilidade */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#D73C2C] via-[#D73C2C] to-transparent opacity-90 md:opacity-50"></div>
+            </div>
           </div>
+          
+          {/* Proteção adicional para garantir que o texto seja legível */}
+          <div className="hidden md:block absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-[#D73C2C] to-transparent opacity-70 z-[1]"></div>
         </section>
 
         {/* Seção de Itens em Destaque */}
