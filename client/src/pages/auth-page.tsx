@@ -27,12 +27,6 @@ export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("login");
 
-  // Redirect if user is already logged in
-  if (user) {
-    navigate("/");
-    return null;
-  }
-
   // Login form
   const loginForm = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -63,6 +57,12 @@ export default function AuthPage() {
     registerMutation.mutate(values);
   };
 
+  // Redirecionamento após todos os hooks serem chamados
+  if (user) {
+    // Usar efeito para evitar alteração do estado durante renderização
+    setTimeout(() => navigate('/'), 0);
+  }
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Header />

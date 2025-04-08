@@ -69,7 +69,7 @@ export interface IStorage {
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
 
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any for session store type to avoid issues
 }
 
 export class MemStorage implements IStorage {
@@ -79,7 +79,7 @@ export class MemStorage implements IStorage {
   private specialOffersMap: Map<number, SpecialOffer>;
   private ordersMap: Map<number, Order>;
 
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Usando any para o tipo do sessionStore para evitar problemas de tipagem
 
   private userIdCounter = 1;
   private categoryIdCounter = 1;
