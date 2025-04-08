@@ -20,10 +20,15 @@ import {
   type PizzaSauce,
   type PizzaTopping
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, inArray, or, isNull } from "drizzle-orm";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
 const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User operations
@@ -852,4 +857,321 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  sessionStore: any; // Using any for session store type to avoid issues
+  
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
+    });
+  }
+
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const [newUser] = await db.insert(users).values(user).returning();
+    return newUser;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(users.id);
+  }
+
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
+    const { role, ...restOfUserData } = userData;
+    
+    if (Object.keys(restOfUserData).length === 0) {
+      // Se não há dados para atualizar, retorne o usuário existente
+      return await this.getUser(id);
+    }
+    
+    const [updatedUser] = await db
+      .update(users)
+      .set(restOfUserData)
+      .where(eq(users.id, id))
+      .returning();
+    
+    return updatedUser;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    // Não permitir a exclusão do admin master (id = 1)
+    if (id === 1) return false;
+    
+    const result = await db.delete(users).where(eq(users.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async setUserRole(id: number, role: string, adminId: number): Promise<User | undefined> {
+    // Verificar se o usuário que quer alterar a função é o admin master
+    const isAdminMaster = await this.isAdminMaster(adminId);
+    const targetUser = await this.getUser(id);
+    
+    if (!targetUser) return undefined;
+    
+    // Regras de permissão:
+    // 1. Somente admin_master pode promover/rebaixar outros usuários
+    // 2. Ninguém pode mudar o papel do admin_master (id = 1)
+    if (id === 1) return targetUser; // Não permitir alteração do admin master
+    
+    if (!isAdminMaster && role === "admin_master") return targetUser; // Somente admin master pode criar outro admin master
+    if (!isAdminMaster && role === "admin") return targetUser; // Somente admin master pode criar admins
+    
+    const [updatedUser] = await db
+      .update(users)
+      .set({ role })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return updatedUser;
+  }
+
+  async isAdminMaster(id: number): Promise<boolean> {
+    const user = await this.getUser(id);
+    return user?.role === "admin_master";
+  }
+
+  // Category operations
+  async getCategory(id: number): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category;
+  }
+
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.slug, slug));
+    return category;
+  }
+
+  async getAllCategories(): Promise<Category[]> {
+    return await db.select().from(categories).orderBy(categories.name);
+  }
+
+  async createCategory(category: InsertCategory): Promise<Category> {
+    const [newCategory] = await db.insert(categories).values(category).returning();
+    return newCategory;
+  }
+
+  async updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined> {
+    const [updatedCategory] = await db
+      .update(categories)
+      .set(category)
+      .where(eq(categories.id, id))
+      .returning();
+    
+    return updatedCategory;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    const result = await db.delete(categories).where(eq(categories.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Menu item operations
+  async getMenuItem(id: number): Promise<MenuItem | undefined> {
+    const [menuItem] = await db.select().from(menuItems).where(eq(menuItems.id, id));
+    return menuItem;
+  }
+
+  async getAllMenuItems(): Promise<MenuItem[]> {
+    return await db.select().from(menuItems).orderBy(menuItems.name);
+  }
+
+  async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
+    return await db.select().from(menuItems).where(eq(menuItems.categoryId, categoryId));
+  }
+
+  async createMenuItem(menuItem: InsertMenuItem): Promise<MenuItem> {
+    const [newMenuItem] = await db.insert(menuItems).values(menuItem).returning();
+    return newMenuItem;
+  }
+
+  async updateMenuItem(id: number, menuItem: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
+    const [updatedMenuItem] = await db
+      .update(menuItems)
+      .set(menuItem)
+      .where(eq(menuItems.id, id))
+      .returning();
+    
+    return updatedMenuItem;
+  }
+
+  async deleteMenuItem(id: number): Promise<boolean> {
+    const result = await db.delete(menuItems).where(eq(menuItems.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getFeaturedMenuItems(): Promise<MenuItem[]> {
+    return await db.select().from(menuItems).where(eq(menuItems.featured, true));
+  }
+
+  // Special offer operations
+  async getSpecialOffer(id: number): Promise<SpecialOffer | undefined> {
+    const [offer] = await db.select().from(specialOffers).where(eq(specialOffers.id, id));
+    return offer;
+  }
+
+  async getAllSpecialOffers(): Promise<SpecialOffer[]> {
+    return await db.select().from(specialOffers);
+  }
+
+  async getActiveSpecialOffers(): Promise<SpecialOffer[]> {
+    return await db.select().from(specialOffers).where(eq(specialOffers.active, true));
+  }
+
+  async createSpecialOffer(specialOffer: InsertSpecialOffer): Promise<SpecialOffer> {
+    const [newOffer] = await db.insert(specialOffers).values(specialOffer).returning();
+    return newOffer;
+  }
+
+  async updateSpecialOffer(id: number, specialOffer: Partial<InsertSpecialOffer>): Promise<SpecialOffer | undefined> {
+    const [updatedOffer] = await db
+      .update(specialOffers)
+      .set(specialOffer)
+      .where(eq(specialOffers.id, id))
+      .returning();
+    
+    return updatedOffer;
+  }
+
+  async deleteSpecialOffer(id: number): Promise<boolean> {
+    const result = await db.delete(specialOffers).where(eq(specialOffers.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Order operations
+  async getOrder(id: number): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order;
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+  }
+
+  async getUserOrders(userId: number): Promise<Order[]> {
+    return await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+  }
+
+  async createOrder(order: InsertOrder): Promise<Order> {
+    const [newOrder] = await db.insert(orders).values(order).returning();
+    return newOrder;
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({ status })
+      .where(eq(orders.id, id))
+      .returning();
+    
+    return updatedOrder;
+  }
+
+  // Pizza customization operations - valores fixos
+  private pizzaBases: PizzaBase[] = [
+    { id: 1, name: "Tradicional", description: "Massa clássica de pizza" },
+    { id: 2, name: "Integral", description: "Massa de trigo integral, mais saudável" },
+    { id: 3, name: "Sem Glúten", description: "Perfeita para quem tem sensibilidade ao glúten" },
+  ];
+
+  private pizzaSizes: PizzaSize[] = [
+    { id: 1, name: "Pequena (25cm)", multiplier: 1, description: "Ideal para 1 pessoa" },
+    { id: 2, name: "Média (30cm)", multiplier: 1.3, description: "Ideal para 2 pessoas" },
+    { id: 3, name: "Grande (35cm)", multiplier: 1.6, description: "Ideal para 3 pessoas" },
+    { id: 4, name: "Família (40cm)", multiplier: 2, description: "Ideal para 4 pessoas" },
+  ];
+
+  private pizzaCrusts: PizzaCrust[] = [
+    { id: 1, name: "Fina", price: 0, description: "Massa fina e crocante" },
+    { id: 2, name: "Tradicional", price: 0, description: "A clássica massa italiana" },
+    { id: 3, name: "Grossa", price: 1.5, description: "Massa mais grossa e macia" },
+    { id: 4, name: "Borda Recheada com Queijo", price: 3, description: "Borda recheada com queijo especial" },
+    { id: 5, name: "Borda Recheada com Catupiry", price: 3.5, description: "Borda recheada com catupiry" },
+  ];
+
+  private pizzaSauces: PizzaSauce[] = [
+    { id: 1, name: "Molho de Tomate Tradicional", price: 0, description: "Molho clássico da casa" },
+    { id: 2, name: "Molho Picante", price: 1, description: "Molho de tomate com pimenta" },
+    { id: 3, name: "Molho Branco", price: 1.5, description: "Delicado molho bechamel" },
+    { id: 4, name: "Molho Barbecue", price: 1.5, description: "Molho barbecue defumado" },
+    { id: 5, name: "Molho Pesto", price: 2, description: "Molho pesto de manjericão" },
+  ];
+
+  private pizzaToppings: PizzaTopping[] = [
+    // Queijos
+    { id: 1, name: "Queijo Mussarela", price: 2, category: "Queijos", imageUrl: "https://via.placeholder.com/50" },
+    { id: 2, name: "Queijo Parmesão", price: 2.5, category: "Queijos", imageUrl: "https://via.placeholder.com/50" },
+    { id: 3, name: "Queijo Cheddar", price: 2.5, category: "Queijos", imageUrl: "https://via.placeholder.com/50" },
+    { id: 4, name: "Queijo Brie", price: 3.5, category: "Queijos", imageUrl: "https://via.placeholder.com/50" },
+    { id: 5, name: "Queijo Gorgonzola", price: 3.5, category: "Queijos", imageUrl: "https://via.placeholder.com/50" },
+    
+    // Carnes
+    { id: 6, name: "Pepperoni", price: 3, category: "Carnes", imageUrl: "https://via.placeholder.com/50" },
+    { id: 7, name: "Presunto", price: 2.5, category: "Carnes", imageUrl: "https://via.placeholder.com/50" },
+    { id: 8, name: "Bacon", price: 3, category: "Carnes", imageUrl: "https://via.placeholder.com/50" },
+    { id: 9, name: "Frango Desfiado", price: 2.5, category: "Carnes", imageUrl: "https://via.placeholder.com/50" },
+    { id: 10, name: "Linguiça Calabresa", price: 2.5, category: "Carnes", imageUrl: "https://via.placeholder.com/50" },
+    { id: 11, name: "Atum", price: 3.5, category: "Carnes", imageUrl: "https://via.placeholder.com/50" },
+    
+    // Vegetais
+    { id: 12, name: "Tomate", price: 1.5, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 13, name: "Cebola", price: 1, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 14, name: "Pimentão", price: 1.5, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 15, name: "Champignon", price: 2, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 16, name: "Milho", price: 1, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 17, name: "Ervilha", price: 1, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 18, name: "Brócolis", price: 2, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 19, name: "Rúcula", price: 1.5, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 20, name: "Espinafre", price: 1.5, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    { id: 21, name: "Azeitona", price: 1.5, category: "Vegetais", imageUrl: "https://via.placeholder.com/50" },
+    
+    // Extras
+    { id: 22, name: "Orégano", price: 0.5, category: "Extras", imageUrl: "https://via.placeholder.com/50" },
+    { id: 23, name: "Manjericão", price: 1, category: "Extras", imageUrl: "https://via.placeholder.com/50" },
+    { id: 24, name: "Azeite de Oliva", price: 1, category: "Extras", imageUrl: "https://via.placeholder.com/50" },
+    { id: 25, name: "Pimenta Calabresa", price: 0.5, category: "Extras", imageUrl: "https://via.placeholder.com/50" },
+  ];
+
+  async getPizzaBases(): Promise<PizzaBase[]> {
+    return this.pizzaBases;
+  }
+
+  async getPizzaSizes(): Promise<PizzaSize[]> {
+    return this.pizzaSizes;
+  }
+
+  async getPizzaCrusts(): Promise<PizzaCrust[]> {
+    return this.pizzaCrusts;
+  }
+
+  async getPizzaSauces(): Promise<PizzaSauce[]> {
+    return this.pizzaSauces;
+  }
+
+  async getPizzaToppings(): Promise<PizzaTopping[]> {
+    return this.pizzaToppings;
+  }
+
+  async getPizzaToppingsByCategory(): Promise<Record<string, PizzaTopping[]>> {
+    return this.pizzaToppings.reduce((acc, topping) => {
+      if (!acc[topping.category]) {
+        acc[topping.category] = [];
+      }
+      acc[topping.category].push(topping);
+      return acc;
+    }, {} as Record<string, PizzaTopping[]>);
+  }
+}
+
+// Usando o armazenamento com banco de dados PostgreSQL
+export const storage = new DatabaseStorage();
