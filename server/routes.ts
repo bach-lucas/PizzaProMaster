@@ -567,18 +567,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/admin/logs", async (req, res) => {
     try {
+      console.log("GET /api/admin/logs - Iniciando requisição");
       if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        console.log("GET /api/admin/logs - Usuário sem permissão:", req.user?.role);
         return res.status(403).json({ message: "Permissão de administrador necessária" });
       }
       
       // Se for admin_master, pode ver todos os logs; caso contrário, vê apenas os próprios logs
       const adminId = req.user.role === "admin_master" ? undefined : req.user.id;
+      console.log(`GET /api/admin/logs - Buscando logs para adminId:`, adminId ? adminId : "todos (admin_master)");
+      
       const logs = await storage.getAdminLogs(adminId);
+      console.log(`GET /api/admin/logs - Logs encontrados:`, logs.length);
       
       // Buscar informações dos usuários para enriquecer os logs
       const adminIdsSet = new Set<number>();
       logs.forEach(log => adminIdsSet.add(log.adminId));
       const adminIds = Array.from(adminIdsSet);
+      console.log(`GET /api/admin/logs - IDs de administradores encontrados:`, adminIds);
+      
       const admins = await Promise.all(
         adminIds.map(id => storage.getUser(id))
       );
@@ -597,8 +604,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         admin: adminsMap.get(log.adminId) || { id: log.adminId, name: "Desconhecido", username: "desconhecido" }
       }));
       
+      console.log(`GET /api/admin/logs - Enviando resposta com ${logsWithAdminInfo.length} logs`);
       res.json(logsWithAdminInfo);
     } catch (error) {
+      console.error("GET /api/admin/logs - Erro:", error);
       res.status(500).json({ message: "Erro ao buscar logs de administrador" });
     }
   });
