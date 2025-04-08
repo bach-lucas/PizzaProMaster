@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { AdminLog } from "@shared/schema";
+import { AdminLog, User } from "@shared/schema";
 import {
   Table,
   TableBody,
@@ -46,8 +46,15 @@ export default function AdminLogs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState<string>("all");
 
+  // Buscar logs de administrador
   const { data: logs, isLoading, error } = useQuery<AdminLogWithUserInfo[]>({
     queryKey: ["/api/admin/logs"],
+  });
+  
+  // Buscar lista de usuários para mostrar nomes em vez de IDs
+  const { data: users } = useQuery<User[]>({
+    queryKey: ["/api/users"],
+    enabled: !!logs, // só executa se logs estiverem carregados
   });
   
   // Mostrar mensagem de erro se houver
@@ -123,6 +130,13 @@ export default function AdminLogs() {
     login: "Login",
     logout: "Logout",
   };
+  
+  // Função para buscar nome do usuário com base no ID da entidade
+  const getUserNameById = (id: number | null | undefined) => {
+    if (!id || !users) return "-";
+    const user = users.find((u: User) => u.id === id);
+    return user ? `${user.name} (@${user.username})` : `ID: ${id}`;
+  };
 
   return (
     <div className="container py-6">
@@ -190,7 +204,7 @@ export default function AdminLogs() {
                     <TableHead>Administrador</TableHead>
                     <TableHead>Ação</TableHead>
                     <TableHead>Entidade</TableHead>
-                    <TableHead>ID</TableHead>
+                    <TableHead>Identificação</TableHead>
                     <TableHead>Detalhes</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -212,7 +226,11 @@ export default function AdminLogs() {
                       <TableCell>
                         {entityTypeLabels[log.entityType] || log.entityType}
                       </TableCell>
-                      <TableCell>{log.entityId || "-"}</TableCell>
+                      <TableCell>
+                        {log.entityType === 'user' 
+                          ? getUserNameById(log.entityId) 
+                          : (log.entityId || "-")}
+                      </TableCell>
                       <TableCell className="max-w-[300px] truncate">
                         {log.details || "-"}
                       </TableCell>
