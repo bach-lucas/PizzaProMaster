@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
@@ -90,11 +90,12 @@ export default function CheckoutPage() {
     createOrderMutation.mutate(orderData);
   };
 
-  // Redirect if cart is empty
-  if (items.length === 0) {
-    navigate("/menu");
-    return null;
-  }
+  // Redirect if cart is empty using useEffect instead of during render
+  useEffect(() => {
+    if (items.length === 0) {
+      navigate("/menu");
+    }
+  }, [items.length, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">

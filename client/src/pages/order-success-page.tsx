@@ -28,11 +28,12 @@ export default function OrderSuccessPage() {
     enabled: !!id,
   });
   
-  // If order not found, redirect to home
-  if (error) {
-    navigate("/");
-    return null;
-  }
+  // If order not found, redirect to home using useEffect to avoid doing this during render
+  useEffect(() => {
+    if (error) {
+      navigate("/");
+    }
+  }, [error, navigate]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -45,9 +46,9 @@ export default function OrderSuccessPage() {
                 <div className="mx-auto bg-green-100 text-green-700 rounded-full p-3 w-16 h-16 flex items-center justify-center mb-2">
                   <Check className="h-8 w-8" />
                 </div>
-                <CardTitle className="text-2xl font-heading text-green-700">Order Successful!</CardTitle>
+                <CardTitle className="text-2xl font-heading text-green-700">Pedido Realizado com Sucesso!</CardTitle>
                 <CardDescription>
-                  Thank you for your order. Your order has been placed and is being processed.
+                  Obrigado pelo seu pedido. Seu pedido foi recebido e está sendo processado.
                 </CardDescription>
               </CardHeader>
               
@@ -55,32 +56,40 @@ export default function OrderSuccessPage() {
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-4 text-gray-500">Loading order details...</p>
+                    <p className="mt-4 text-gray-500">Carregando detalhes do pedido...</p>
                   </div>
                 ) : order ? (
                   <>
                     <div className="bg-gray-50 p-4 rounded-md mb-6">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium">Order Number:</span>
+                        <span className="font-medium">Número do Pedido:</span>
                         <span className="font-bold">#{order.id}</span>
                       </div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium">Order Date:</span>
+                        <span className="font-medium">Data do Pedido:</span>
                         <span>{order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</span>
                       </div>
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">Status:</span>
                         <span className="bg-yellow-100 text-yellow-800 py-1 px-2 rounded-full text-xs font-medium">
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
+                          {order.status === "pending" ? "Pendente" : 
+                           order.status === "confirmed" ? "Confirmado" : 
+                           order.status === "preparing" ? "Em Preparo" : 
+                           order.status === "delivering" ? "Em Entrega" : 
+                           order.status === "completed" ? "Entregue" : 
+                           order.status === "cancelled" ? "Cancelado" : 
+                           order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="font-medium">Payment Method:</span>
-                        <span>{order.paymentMethod.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                        <span className="font-medium">Método de Pagamento:</span>
+                        <span>{order.paymentMethod === "credit_card" ? "Cartão de Crédito" : 
+                              order.paymentMethod === "cash_on_delivery" ? "Dinheiro na Entrega" : 
+                              order.paymentMethod.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
                       </div>
                     </div>
                     
-                    <h3 className="font-heading font-medium text-lg mb-3">Order Items</h3>
+                    <h3 className="font-heading font-medium text-lg mb-3">Itens do Pedido</h3>
                     <div className="space-y-2 mb-4">
                       {(order.items as any[]).map((item: any, index: number) => (
                         <div key={index} className="flex justify-between py-2 border-b last:border-0">
@@ -92,7 +101,7 @@ export default function OrderSuccessPage() {
                               </div>
                             )}
                             <div className="text-sm text-gray-500">
-                              Qty: {item.quantity}
+                              Qtd: {item.quantity}
                             </div>
                           </div>
                           <span className="font-medium">{formatCurrency(item.price * item.quantity)}</span>
@@ -108,7 +117,7 @@ export default function OrderSuccessPage() {
                         <span>{formatCurrency(order.subtotal)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Delivery Fee</span>
+                        <span>Taxa de Entrega</span>
                         <span>{formatCurrency(order.deliveryFee)}</span>
                       </div>
                       <div className="flex justify-between font-bold mt-2 pt-2 border-t">
@@ -119,7 +128,7 @@ export default function OrderSuccessPage() {
                     
                     {order.address && (
                       <div className="mt-6 bg-gray-50 p-4 rounded-md">
-                        <h3 className="font-heading font-medium text-lg mb-2">Delivery Address</h3>
+                        <h3 className="font-heading font-medium text-lg mb-2">Endereço de Entrega</h3>
                         <p className="text-gray-700 whitespace-pre-line">{order.address}</p>
                       </div>
                     )}
@@ -128,23 +137,23 @@ export default function OrderSuccessPage() {
                       <Link href="/">
                         <Button variant="outline" className="w-full">
                           <Home className="mr-2 h-4 w-4" />
-                          Return to Home
+                          Voltar para a Página Inicial
                         </Button>
                       </Link>
                       <Link href={`/track-order/${order.id}`}>
                         <Button className="w-full bg-primary hover:bg-red-700">
                           <Eye className="mr-2 h-4 w-4" />
-                          Track Order
+                          Acompanhar Pedido
                         </Button>
                       </Link>
                     </div>
                   </>
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">Order details not found.</p>
+                    <p className="text-gray-500">Detalhes do pedido não encontrados.</p>
                     <Link href="/">
                       <Button className="mt-4">
-                        Return to Home
+                        Voltar para a Página Inicial
                       </Button>
                     </Link>
                   </div>

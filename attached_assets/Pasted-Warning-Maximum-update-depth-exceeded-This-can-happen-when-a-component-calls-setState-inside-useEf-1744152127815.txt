@@ -1,0 +1,21 @@
+Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn&#x27;t have a dependency array, or one of the dependencies changes on every render.
+    at OrderSuccessPage (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/src/pages/order-success-page.tsx:32:18)
+    at Route (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4df1e5f4:323:16)
+    at ProtectedRoute (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/src/lib/protected-route.tsx:22:3)
+    at Switch (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4df1e5f4:379:17)
+    at Router
+    at AuthProvider (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/src/hooks/use-auth.tsx:34:32)
+    at CartProvider (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/src/hooks/use-cart.tsx:22:32)
+    at QueryClientProvider (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4df1e5f4:2805:3)
+    at App
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Warning: Cannot update a component (&#x60;Switch&#x60;) while rendering a different component (&#x60;CheckoutPage&#x60;). To locate the bad setState() call inside &#x60;CheckoutPage&#x60;, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
+    at CheckoutPage (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/src/pages/checkout-page.tsx?t=1744140716394:58:32)
+    at Route (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4df1e5f4:323:16)
+    at ProtectedRoute (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/src/lib/protected-route.tsx:22:3)
+    at Switch (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4df1e5f4:379:17)
+    at Router
+    at AuthProvider (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/src/hooks/use-auth.tsx:34:32)
+    at CartProvider (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/src/hooks/use-cart.tsx:22:32)
+    at QueryClientProvider (https://2117a750-5068-4302-911e-64ff0da9d734-00-113jjs47vr74j.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4df1e5f4:2805:3)
+    at App
