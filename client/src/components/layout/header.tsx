@@ -43,7 +43,7 @@ export default function Header() {
               <Link href="/monte-sua-pizza" className={`px-3 py-2 ${isActive('/monte-sua-pizza') ? 'text-primary font-medium' : 'text-textColor hover:text-primary font-medium'}`}>
                 Monte Sua Pizza
               </Link>
-              {user?.role === 'admin' && (
+              {(user?.role === 'admin' || user?.role === 'admin_master') && (
                 <Link href="/admin" className="px-3 py-2 text-primary font-bold">
                   Painel Admin
                 </Link>
@@ -124,7 +124,7 @@ export default function Header() {
                 Entrar / Cadastrar
               </Link>
             )}
-            {user?.role === 'admin' && (
+            {(user?.role === 'admin' || user?.role === 'admin_master') && (
               <Link href="/admin" className="px-3 py-2 text-primary font-bold">
                 Painel Admin
               </Link>

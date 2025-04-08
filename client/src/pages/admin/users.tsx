@@ -34,11 +34,24 @@ export default function Users() {
     {
       header: "Role",
       accessorKey: "role",
-      cell: (row: User) => (
-        <Badge variant={row.role === "admin" ? "default" : "outline"}>
-          {row.role === "admin" ? "Admin" : "Customer"}
-        </Badge>
-      ),
+      cell: (row: User) => {
+        let variant = "outline";
+        let text = "Cliente";
+        
+        if (row.role === "admin") {
+          variant = "default";
+          text = "Admin";
+        } else if (row.role === "admin_master") {
+          variant = "destructive";
+          text = "Admin Master";
+        }
+        
+        return (
+          <Badge variant={variant}>
+            {text}
+          </Badge>
+        );
+      },
     },
     {
       header: "Created At",

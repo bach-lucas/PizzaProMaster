@@ -56,7 +56,7 @@ export function AdminRoute({
           return <Redirect to="/auth" />;
         }
 
-        if (user.role !== "admin") {
+        if (user.role !== "admin" && user.role !== "admin_master") {
           return <Redirect to="/" />;
         }
 
