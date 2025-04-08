@@ -10,6 +10,7 @@ import CheckoutPage from "@/pages/checkout-page";
 import OrderSuccessPage from "@/pages/order-success-page";
 import OrderTrackingPage from "@/pages/order-tracking-page";
 import PizzaBuilderPage from "@/pages/pizza-builder-page";
+import ProfilePage from "@/pages/profile-page";
 
 // Admin pages
 import Dashboard from "@/pages/admin/dashboard";
@@ -34,6 +35,7 @@ function Router() {
       
       {/* Protected customer routes */}
       <ProtectedRoute path="/checkout" component={CheckoutPage} />
+      <ProtectedRoute path="/profile" component={ProfilePage} />
       <ProtectedRoute path="/order-success/:id" component={OrderSuccessPage} />
       <ProtectedRoute path="/track-order/:id" component={OrderTrackingPage} />
       

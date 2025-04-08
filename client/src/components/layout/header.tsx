@@ -73,6 +73,14 @@ export default function Header() {
               {user ? (
                 <div className="flex items-center space-x-2">
                   <span className="text-sm font-medium">{user.name}</span>
+                  {!(user?.role === 'admin' || user?.role === 'admin_master') && (
+                    <Link href="/profile">
+                      <Button variant="ghost" size="sm">
+                        <User className="h-4 w-4 mr-1" />
+                        Perfil
+                      </Button>
+                    </Link>
+                  )}
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
                     Sair
                   </Button>
@@ -120,6 +128,12 @@ export default function Header() {
             {user ? (
               <>
                 <div className="px-3 py-2 font-medium">{user.name}</div>
+                {!(user?.role === 'admin' || user?.role === 'admin_master') && (
+                  <Link href="/profile" className="px-3 py-2 text-textColor hover:text-primary flex items-center">
+                    <User className="h-4 w-4 mr-2" />
+                    Meu Perfil
+                  </Link>
+                )}
                 <button 
                   onClick={handleLogout} 
                   className="px-3 py-2 text-left text-textColor hover:text-primary"
