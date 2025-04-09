@@ -49,26 +49,26 @@ export default function OrderTrackingPage() {
     const steps = [
       { 
         status: "pending", 
-        label: "Order Received", 
-        description: "We've received your order and are processing it.",
+        label: "Pedido Recebido", 
+        description: "Recebemos seu pedido e estamos processando.",
         icon: <Clock className="h-8 w-8" />,
       },
       { 
         status: "preparing", 
-        label: "Preparing", 
-        description: "Our chefs are preparing your delicious pizza.",
+        label: "Em Preparo", 
+        description: "Nossos chefs estão preparando sua deliciosa pizza.",
         icon: <ChefHat className="h-8 w-8" />,
       },
       { 
         status: "in_transit", 
-        label: "On the Way", 
-        description: "Your order is on its way to you!",
+        label: "A Caminho", 
+        description: "Seu pedido está a caminho!",
         icon: <Truck className="h-8 w-8" />,
       },
       { 
         status: "delivered", 
-        label: "Delivered", 
-        description: "Your order has been delivered. Enjoy!",
+        label: "Entregue", 
+        description: "Seu pedido foi entregue. Bom apetite!",
         icon: <CheckCircle className="h-8 w-8" />,
       },
     ];
@@ -86,15 +86,17 @@ export default function OrderTrackingPage() {
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-3xl mx-auto">
             <div className="mb-6">
-              <Link href="/">
-                <Button variant="ghost" className="mb-4">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
-                </Button>
-              </Link>
-              <h1 className="font-heading text-3xl font-bold">Order Tracking</h1>
+              <Button 
+                variant="ghost" 
+                className="mb-4" 
+                onClick={() => window.history.back()}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <h1 className="font-heading text-3xl font-bold">Acompanhamento do Pedido</h1>
               {order && (
                 <p className="text-gray-600">
-                  Order #{order.id} • Placed on {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
+                  Pedido #{order.id} • Realizado em {order.createdAt ? new Date(order.createdAt).toLocaleString('pt-BR') : 'N/A'}
                 </p>
               )}
             </div>
@@ -103,20 +105,20 @@ export default function OrderTrackingPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                  <p className="mt-4 text-gray-500">Loading order details...</p>
+                  <p className="mt-4 text-gray-500">Carregando detalhes do pedido...</p>
                 </CardContent>
               </Card>
             ) : error ? (
               <Card>
                 <CardContent className="p-8 text-center">
                   <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                  <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
+                  <h2 className="text-xl font-semibold mb-2">Pedido Não Encontrado</h2>
                   <p className="text-gray-600 mb-6">
-                    We couldn't find the order you're looking for. Please check the order number and try again.
+                    Não conseguimos encontrar o pedido que você está procurando. Por favor, verifique o número do pedido e tente novamente.
                   </p>
-                  <Link href="/">
-                    <Button>Return to Home</Button>
-                  </Link>
+                  <Button onClick={() => window.history.back()}>
+                    Voltar
+                  </Button>
                 </CardContent>
               </Card>
             ) : order ? (
@@ -127,9 +129,9 @@ export default function OrderTrackingPage() {
                       <div className="flex items-start">
                         <AlertCircle className="h-8 w-8 text-red-500 mr-4 mt-1" />
                         <div>
-                          <h2 className="text-xl font-heading font-bold mb-2">Order Cancelled</h2>
+                          <h2 className="text-xl font-heading font-bold mb-2">Pedido Cancelado</h2>
                           <p className="text-gray-600">
-                            Unfortunately, this order has been cancelled. Please contact customer support if you have any questions.
+                            Infelizmente, este pedido foi cancelado. Por favor, entre em contato com o suporte ao cliente se tiver alguma dúvida.
                           </p>
                         </div>
                       </div>
@@ -138,9 +140,9 @@ export default function OrderTrackingPage() {
                 ) : (
                   <Card className="mb-8">
                     <CardHeader>
-                      <CardTitle>Tracking Status</CardTitle>
+                      <CardTitle>Status do Pedido</CardTitle>
                       <CardDescription>
-                        Follow your order's journey from our kitchen to your doorstep
+                        Acompanhe a jornada do seu pedido da nossa cozinha até a sua porta
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -177,7 +179,7 @@ export default function OrderTrackingPage() {
                                 
                                 {isCurrent && (
                                   <p className="text-sm text-primary font-medium mt-1">
-                                    Current Status
+                                    Status Atual
                                   </p>
                                 )}
                               </div>
@@ -190,10 +192,10 @@ export default function OrderTrackingPage() {
                         <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mt-6">
                           <h3 className="font-semibold flex items-center text-yellow-800">
                             <Truck className="h-5 w-5 mr-2" />
-                            Estimated Delivery Time
+                            Tempo Estimado de Entrega
                           </h3>
                           <p className="mt-1 text-yellow-700">
-                            Your order is expected to arrive in approximately 15-20 minutes.
+                            Seu pedido deve chegar em aproximadamente 15-20 minutos.
                           </p>
                         </div>
                       )}
@@ -206,14 +208,14 @@ export default function OrderTrackingPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <ShoppingBag className="mr-2 h-5 w-5" />
-                      Order Details
+                      Detalhes do Pedido
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-6">
                       {/* Items */}
                       <div>
-                        <h3 className="font-medium mb-3">Items</h3>
+                        <h3 className="font-medium mb-3">Itens</h3>
                         <div className="space-y-2">
                           {(order.items as any[]).map((item: any, index: number) => (
                             <div key={index} className="flex justify-between py-2 border-b last:border-0">
@@ -226,10 +228,10 @@ export default function OrderTrackingPage() {
                                     </div>
                                   )}
                                   <div className="text-sm text-gray-500">
-                                    Qty: {item.quantity}
+                                    Quantidade: {item.quantity}
                                     {item.specialInstructions && (
                                       <div className="text-xs italic mt-1">
-                                        Note: {item.specialInstructions}
+                                        Observação: {item.specialInstructions}
                                       </div>
                                     )}
                                   </div>
@@ -250,7 +252,7 @@ export default function OrderTrackingPage() {
                           <span>{formatCurrency(order.subtotal)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Delivery Fee</span>
+                          <span>Taxa de Entrega</span>
                           <span>{formatCurrency(order.deliveryFee)}</span>
                         </div>
                         <div className="flex justify-between font-bold mt-2 pt-2 border-t">
@@ -263,15 +265,19 @@ export default function OrderTrackingPage() {
                       
                       {/* Delivery details */}
                       <div>
-                        <h3 className="font-medium mb-2">Delivery Details</h3>
+                        <h3 className="font-medium mb-2">Detalhes da Entrega</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <p className="text-sm text-gray-500">Delivery Address</p>
+                            <p className="text-sm text-gray-500">Endereço de Entrega</p>
                             <p className="whitespace-pre-line">{order.address}</p>
                           </div>
                           <div>
-                            <p className="text-sm text-gray-500">Payment Method</p>
-                            <p>{order.paymentMethod.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                            <p className="text-sm text-gray-500">Método de Pagamento</p>
+                            <p>{order.paymentMethod === "credit_card" ? "Cartão de Crédito" : 
+                               order.paymentMethod === "debit_card" ? "Cartão de Débito" : 
+                               order.paymentMethod === "cash" ? "Dinheiro" : 
+                               order.paymentMethod === "pix" ? "PIX" : 
+                               order.paymentMethod.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</p>
                           </div>
                         </div>
                       </div>
