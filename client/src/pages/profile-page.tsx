@@ -2,9 +2,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useEffect, useState } from "react";
-import { Loader2, Home, MapPin, Edit, Trash2, CheckCircle, Plus } from "lucide-react";
+import { Loader2, Home, MapPin, Edit, Trash2, CheckCircle, Plus, Eye, ShoppingCart } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Address } from "@shared/schema";
@@ -552,13 +552,127 @@ function ProfileDataTab() {
   );
 }
 
-function OrdersTab() {
+function OrderItem({ order }: { order: any }) {
   return (
-    <div className="text-center p-8">
-      <h3 className="text-lg font-medium mb-2">Histórico de Pedidos</h3>
-      <p className="text-muted-foreground">
-        Funcionalidade em desenvolvimento. Em breve você poderá ver todo o seu histórico de pedidos aqui.
-      </p>
+    <Card className="mb-4">
+      <CardHeader className="pb-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <div className="mb-2 sm:mb-0">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-lg">Pedido #{order.id}</CardTitle>
+              <Badge 
+                variant={
+                  order.status === "pending" ? "outline" : 
+                  order.status === "preparing" ? "secondary" : 
+                  order.status === "in_transit" ? "default" : 
+                  order.status === "delivered" ? "default" : 
+                  order.status === "cancelled" ? "destructive" : 
+                  "outline"
+                }
+                className={
+                  order.status === "delivered" ? "bg-green-500 hover:bg-green-600" : 
+                  ""
+                }
+              >
+                {order.status === "pending" ? "Pendente" : 
+                 order.status === "preparing" ? "Em Preparo" : 
+                 order.status === "in_transit" ? "Em Entrega" : 
+                 order.status === "delivered" ? "Entregue" : 
+                 order.status === "cancelled" ? "Cancelado" : 
+                 order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'Data não disponível'}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-bold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(order.total)}</p>
+            <p className="text-sm text-muted-foreground">
+              {order.paymentMethod === "credit_card" ? "Cartão de Crédito" : 
+               order.paymentMethod === "debit_card" ? "Cartão de Débito" : 
+               order.paymentMethod === "cash" ? "Dinheiro" : 
+               order.paymentMethod === "pix" ? "PIX" : 
+               order.paymentMethod.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pb-2">
+        <Separator className="my-2" />
+        <h4 className="font-medium text-sm mb-2">Itens do Pedido</h4>
+        <div className="space-y-2">
+          {(order.items as any[]).map((item, index) => (
+            <div key={index} className="flex justify-between items-start">
+              <div>
+                <p className="font-medium">{item.name}</p>
+                <p className="text-sm text-muted-foreground">Quantidade: {item.quantity}</p>
+              </div>
+              <p>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price * item.quantity)}</p>
+            </div>
+          ))}
+        </div>
+        
+        {order.address && (
+          <>
+            <Separator className="my-4" />
+            <h4 className="font-medium text-sm mb-2">Endereço de Entrega</h4>
+            <p className="text-sm text-muted-foreground whitespace-pre-line">{order.address}</p>
+          </>
+        )}
+      </CardContent>
+      <CardFooter className="pt-2 flex justify-end">
+        <Link href={`/track-order/${order.id}`}>
+          <Button variant="outline" size="sm">
+            <Eye className="h-4 w-4 mr-1" /> Acompanhar Pedido
+          </Button>
+        </Link>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function OrdersTab() {
+  const { 
+    data: orders = [], 
+    isLoading: isLoadingOrders,
+    error
+  } = useQuery<any[]>({
+    queryKey: ['/api/orders'],
+    retry: false
+  });
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Meus Pedidos</h3>
+      
+      {isLoadingOrders ? (
+        <div className="flex justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : error ? (
+        <div className="text-center p-8 border rounded-lg">
+          <p className="text-red-500 mb-2">Erro ao carregar pedidos</p>
+          <p className="text-sm text-muted-foreground">{(error as Error).message}</p>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center p-8 border rounded-lg">
+          <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Nenhum pedido encontrado</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Você ainda não fez nenhum pedido em nossa loja
+          </p>
+          <Link href="/menu">
+            <Button>Fazer um Pedido</Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {orders.map((order) => (
+            <OrderItem key={order.id} order={order} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
