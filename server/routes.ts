@@ -1182,6 +1182,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rotas de integração com Mercado Pago
+  app.post("/api/payment/mercadopago/preference", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Você precisa estar logado para processar pagamentos" });
+      }
+
+      const { orderId, items, total } = req.body;
+      
+      if (!orderId || !items || !Array.isArray(items) || !total) {
+        return res.status(400).json({ 
+          message: "Dados inválidos. É necessário fornecer orderId, items e total."
+        });
+      }
+
+      // Buscar o pedido para validar
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      // Verificar se o usuário tem permissão para acessar este pedido
+      if (order.userId !== req.user.id && req.user.role !== "admin" && req.user.role !== "admin_master") {
+        return res.status(403).json({ 
+          message: "Você não tem permissão para processar pagamento para este pedido" 
+        });
+      }
+
+      // Criar preferência de pagamento no Mercado Pago
+      const preference = await mercadoPagoService.createPaymentPreference({
+        orderId,
+        items,
+        total,
+        userId: req.user.id,
+        userName: req.user.name || req.user.username,
+        userEmail: req.user.email || `${req.user.username}@example.com`,
+      }, req);
+
+      res.json(preference);
+    } catch (error) {
+      console.error("Erro ao criar preferência de pagamento:", error);
+      res.status(500).json({ 
+        message: "Erro ao processar pagamento com Mercado Pago" 
+      });
+    }
+  });
+
+  // Webhook para receber atualizações de pagamento do Mercado Pago
+  app.post("/api/payment/mercadopago/webhook", async (req, res) => {
+    try {
+      const { action, data } = req.body;
+      
+      // Processar somente notificações de pagamento
+      if (action === "payment.created" || action === "payment.updated") {
+        const paymentId = data.id;
+        
+        // Buscar detalhes do pagamento
+        const paymentStatus = await mercadoPagoService.getPaymentStatus(paymentId);
+        
+        // Atualizar o status do pedido com base no status do pagamento
+        if (paymentStatus) {
+          const externalRef = data.external_reference;
+          if (externalRef) {
+            const orderId = parseInt(externalRef);
+            
+            let orderStatus = "pending";
+            switch (paymentStatus) {
+              case "approved":
+                orderStatus = "preparing";
+                break;
+              case "pending":
+                orderStatus = "pending";
+                break;
+              case "rejected":
+              case "cancelled":
+                orderStatus = "cancelled";
+                break;
+            }
+            
+            await storage.updateOrderStatus(orderId, orderStatus);
+          }
+        }
+      }
+      
+      res.status(200).end();
+    } catch (error) {
+      console.error("Erro no webhook do Mercado Pago:", error);
+      res.status(500).end();
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
