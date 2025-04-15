@@ -1317,9 +1317,10 @@ export class DatabaseStorage implements IStorage {
   async deleteOrder(id: number): Promise<boolean> {
     const result = await db
       .delete(orders)
-      .where(eq(orders.id, id));
+      .where(eq(orders.id, id))
+      .returning();
     
-    return result.rowCount > 0;
+    return result.length > 0;
   }
 
   // Pizza customization operations - valores fixos

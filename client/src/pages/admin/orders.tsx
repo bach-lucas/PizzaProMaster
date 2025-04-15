@@ -88,16 +88,19 @@ export default function Orders() {
         title: "Pedido excluído",
         description: "O pedido foi excluído com sucesso.",
       });
+      
+      // Registrar ação no log de administrador
+      if (orderToDelete) {
+        logAction(
+          "delete",
+          "order",
+          orderToDelete.id,
+          `Excluiu o pedido #${orderToDelete.id}`
+        );
+      }
+      
       setDeleteModalOpen(false);
       setOrderToDelete(null);
-      
-      // Log admin action
-      logAction({
-        action: "delete",
-        entityType: "order",
-        entityId: orderToDelete?.id || 0,
-        details: `Excluiu o pedido #${orderToDelete?.id}`
-      });
     },
     onError: (error) => {
       toast({
