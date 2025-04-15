@@ -54,14 +54,16 @@ export default function CheckoutPage() {
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
   
   // Buscar endereços do usuário
-  const { data: addresses = [], isLoading: isLoadingAddresses } = useQuery({
+  const { data: addresses = [], isLoading: isLoadingAddresses } = useQuery<any[]>({
     queryKey: ['/api/addresses'],
     queryFn: getQueryFn({ on401: 'returnNull' }),
     enabled: !!user,
   });
   
   // Selecionar o endereço favorito ou o primeiro disponível
-  const primaryAddress = addresses?.find((address: any) => address.isDefault) || addresses?.[0];
+  const primaryAddress = addresses && addresses.length > 0 
+    ? (addresses.find((address) => address.isDefault) || addresses[0])
+    : null;
 
   // Create form
   const form = useForm<CheckoutValues>({
@@ -238,12 +240,12 @@ ${primaryAddress.complement ? primaryAddress.complement + '\n' : ''}${primaryAdd
                     </div>
                     <div className="flex justify-between">
                       <span>Taxa de Entrega</span>
-                      <span>{formatCurrency(deliveryFee)}</span>
+                      <span>{isPickup ? 'Grátis' : formatCurrency(deliveryFee)}</span>
                     </div>
                     <Separator className="my-2" />
                     <div className="flex justify-between font-bold">
                       <span>Total</span>
-                      <span className="text-xl text-primary">{formatCurrency(total)}</span>
+                      <span className="text-xl text-primary">{formatCurrency(isPickup ? subtotal : total)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -307,7 +309,7 @@ ${primaryAddress.complement ? primaryAddress.complement + '\n' : ''}${primaryAdd
                                   <AlertTriangle className="h-4 w-4 text-amber-500" />
                                   <AlertTitle className="text-amber-700">Nenhum endereço cadastrado</AlertTitle>
                                   <AlertDescription className="text-amber-600">
-                                    Cadastre um endereço em "Meu Perfil &gt; Meus Endereços" para continuar com o pedido.
+                                    Cadastre um endereço em "Meu Perfil" para continuar com o pedido.
                                     <div className="mt-2">
                                       <Button 
                                         variant="outline" 
@@ -379,15 +381,38 @@ ${primaryAddress.complement ? primaryAddress.complement + '\n' : ''}${primaryAdd
                             render={({ field }) => (
                               <FormItem className="space-y-3">
                                 <FormLabel>Método de Pagamento</FormLabel>
+                                {isPickup && (
+                                  <Alert className="bg-blue-50 border-blue-200 mb-4">
+                                    <InfoIcon className="h-4 w-4 text-blue-500" />
+                                    <AlertTitle className="text-blue-700">Retirada no local</AlertTitle>
+                                    <AlertDescription className="text-blue-600">
+                                      Para pedidos com retirada no local, o pagamento será realizado apenas no momento da retirada.
+                                    </AlertDescription>
+                                  </Alert>
+                                )}
                                 <FormControl>
                                   <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
+                                    onValueChange={(value) => {
+                                      // Se estiver em retirada no local, forçar pagamento em dinheiro
+                                      if (isPickup && value !== "cash_on_delivery") {
+                                        field.onChange("cash_on_delivery");
+                                      } else {
+                                        field.onChange(value);
+                                      }
+                                    }}
+                                    defaultValue={isPickup ? "cash_on_delivery" : field.value}
                                     className="flex flex-col space-y-1"
                                   >
-                                    <div className="flex items-center space-x-2 p-3 border rounded-md cursor-pointer hover:bg-gray-50">
-                                      <RadioGroupItem value="mercadopago" id="mercadopago" />
-                                      <Label htmlFor="mercadopago" className="flex-1 cursor-pointer">
+                                    <div className={`flex items-center space-x-2 p-3 border rounded-md cursor-pointer ${isPickup ? 'opacity-50 bg-gray-100' : 'hover:bg-gray-50'}`}>
+                                      <RadioGroupItem 
+                                        value="mercadopago" 
+                                        id="mercadopago" 
+                                        disabled={isPickup}
+                                      />
+                                      <Label 
+                                        htmlFor="mercadopago" 
+                                        className={`flex-1 ${isPickup ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer'}`}
+                                      >
                                         Cartão de Crédito / Pix / Boleto (Mercado Pago)
                                       </Label>
                                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-credit-card text-gray-500"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
@@ -395,7 +420,7 @@ ${primaryAddress.complement ? primaryAddress.complement + '\n' : ''}${primaryAdd
                                     <div className="flex items-center space-x-2 p-3 border rounded-md cursor-pointer hover:bg-gray-50">
                                       <RadioGroupItem value="cash_on_delivery" id="cash_on_delivery" />
                                       <Label htmlFor="cash_on_delivery" className="flex-1 cursor-pointer">
-                                        Pagamento na Entrega (Dinheiro)
+                                        Pagamento na {isPickup ? 'Retirada' : 'Entrega'} (Dinheiro)
                                       </Label>
                                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-banknote text-gray-500"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
                                     </div>
