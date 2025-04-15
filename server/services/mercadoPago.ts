@@ -1,15 +1,23 @@
-import mercadopago from 'mercadopago';
 import { OrderItem } from '@shared/schema';
 import { Request } from 'express';
+import axios from 'axios';
 
-// Configurando o SDK do MercadoPago com o token de acesso
+// Verificar se a chave de acesso está configurada
 if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
   throw new Error('MERCADOPAGO_ACCESS_TOKEN não configurado no ambiente');
 }
 
-mercadopago.configure({
-  access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
-});
+// API de Mercado Pago - usando axios em vez do SDK problemático
+const MERCADO_PAGO_API = {
+  preferences: 'https://api.mercadopago.com/checkout/preferences',
+  payments: 'https://api.mercadopago.com/v1/payments',
+};
+
+// Headers de autenticação
+const headers = {
+  'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+  'Content-Type': 'application/json'
+};
 
 // Interface para os dados necessários ao criar uma preferência de pagamento
 interface CreatePreferenceData {
@@ -69,11 +77,11 @@ export async function createPaymentPreference(
   };
 
   try {
-    const response = await mercadopago.preferences.create(preference);
+    const response = await axios.post(MERCADO_PAGO_API.preferences, preference, { headers });
     
     return {
-      initPoint: response.body.init_point,
-      preferenceId: response.body.id,
+      initPoint: response.data.init_point,
+      preferenceId: response.data.id,
     };
   } catch (error) {
     console.error('Erro ao criar preferência de pagamento no Mercado Pago:', error);
@@ -88,8 +96,8 @@ export async function createPaymentPreference(
  */
 export async function getPaymentStatus(paymentId: string) {
   try {
-    const response = await mercadopago.payment.get(paymentId);
-    return response.body.status;
+    const response = await axios.get(`${MERCADO_PAGO_API.payments}/${paymentId}`, { headers });
+    return response.data.status;
   } catch (error) {
     console.error('Erro ao verificar status do pagamento:', error);
     throw error;
@@ -103,8 +111,11 @@ export async function getPaymentStatus(paymentId: string) {
  */
 export async function cancelPayment(paymentId: string) {
   try {
-    const response = await mercadopago.payment.cancel(paymentId);
-    return response.body;
+    const response = await axios.put(`${MERCADO_PAGO_API.payments}/${paymentId}`, 
+      { status: 'cancelled' }, 
+      { headers }
+    );
+    return response.data;
   } catch (error) {
     console.error('Erro ao cancelar pagamento:', error);
     throw error;

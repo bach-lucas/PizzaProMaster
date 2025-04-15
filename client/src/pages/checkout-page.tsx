@@ -29,13 +29,10 @@ import { Trash2 } from "lucide-react";
 
 // Checkout form schema
 const checkoutSchema = z.object({
-  address: z.string().min(1, "Delivery address is required"),
-  paymentMethod: z.enum(["credit_card", "cash_on_delivery"], {
-    required_error: "Please select a payment method",
+  address: z.string().min(1, "Endereço de entrega é obrigatório"),
+  paymentMethod: z.enum(["mercadopago", "cash_on_delivery"], {
+    required_error: "Por favor, selecione um método de pagamento",
   }),
-  cardNumber: z.string().optional(),
-  cardExpiry: z.string().optional(),
-  cardCvc: z.string().optional(),
   orderNotes: z.string().optional(),
 });
 
@@ -47,15 +44,15 @@ export default function CheckoutPage() {
   const { items, subtotal, deliveryFee, total, updateQuantity, removeItem } = useCart();
   const [paymentStep, setPaymentStep] = useState(1);
 
+  // State para gerenciar o redirecionamento ao Mercado Pago
+  const [mercadoPagoUrl, setMercadoPagoUrl] = useState<string | null>(null);
+
   // Create form
   const form = useForm<CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       address: "",
-      paymentMethod: "credit_card",
-      cardNumber: "",
-      cardExpiry: "",
-      cardCvc: "",
+      paymentMethod: "mercadopago",
       orderNotes: "",
     },
   });
@@ -70,10 +67,43 @@ export default function CheckoutPage() {
       return await res.json();
     },
     onSuccess: (data) => {
-      // Redirect to success page with order ID
-      navigate(`/order-success/${data.id}`);
+      // Se o método de pagamento for Mercado Pago, criar preferência
+      if (paymentMethod === "mercadopago") {
+        createMercadoPagoPreference(data);
+      } else {
+        // Para pagamento na entrega, redirecionar para a página de sucesso
+        navigate(`/order-success/${data.id}`);
+      }
     },
   });
+  
+  // Mutation para criar preferência de pagamento no Mercado Pago
+  const createMercadoPagoPreferenceMutation = useMutation({
+    mutationFn: async (data: { orderId: number; items: any[]; total: number }) => {
+      const res = await apiRequest("POST", "/api/payment/mercadopago/preference", data);
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      // Redirecionar para a página de pagamento do Mercado Pago
+      if (data.initPoint) {
+        window.location.href = data.initPoint;
+      }
+    },
+    onError: (error) => {
+      console.error("Erro ao criar preferência de pagamento:", error);
+      // Mostrar mensagem de erro e redirecionar para a página de sucesso com status de erro
+      navigate(`/order-success/${data.orderId}?status=failure`);
+    }
+  });
+  
+  // Função para criar preferência de pagamento no Mercado Pago
+  const createMercadoPagoPreference = (orderData: any) => {
+    createMercadoPagoPreferenceMutation.mutate({
+      orderId: orderData.id,
+      items: items,
+      total: total
+    });
+  };
 
   const onSubmit = (values: CheckoutValues) => {
     // Create order data
@@ -259,16 +289,16 @@ export default function CheckoutPage() {
                                     className="flex flex-col space-y-1"
                                   >
                                     <div className="flex items-center space-x-2 p-3 border rounded-md cursor-pointer hover:bg-gray-50">
-                                      <RadioGroupItem value="credit_card" id="credit_card" />
-                                      <Label htmlFor="credit_card" className="flex-1 cursor-pointer">
-                                        Pagamento com Cartão
+                                      <RadioGroupItem value="mercadopago" id="mercadopago" />
+                                      <Label htmlFor="mercadopago" className="flex-1 cursor-pointer">
+                                        Cartão de Crédito / Pix / Boleto (Mercado Pago)
                                       </Label>
                                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-credit-card text-gray-500"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                                     </div>
                                     <div className="flex items-center space-x-2 p-3 border rounded-md cursor-pointer hover:bg-gray-50">
                                       <RadioGroupItem value="cash_on_delivery" id="cash_on_delivery" />
                                       <Label htmlFor="cash_on_delivery" className="flex-1 cursor-pointer">
-                                        Pagamento na Entrega
+                                        Pagamento na Entrega (Dinheiro)
                                       </Label>
                                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-banknote text-gray-500"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
                                     </div>
@@ -279,57 +309,21 @@ export default function CheckoutPage() {
                             )}
                           />
 
-                          {paymentMethod === "credit_card" && (
+                          {paymentMethod === "mercadopago" && (
                             <div className="space-y-4 pt-2">
-                              <FormField
-                                control={form.control}
-                                name="cardNumber"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Número do Cartão</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="1234 5678 9012 3456"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                  control={form.control}
-                                  name="cardExpiry"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Data de Validade</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="MM/AA"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={form.control}
-                                  name="cardCvc"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Código de Segurança</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="123"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
+                              <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <p className="text-sm mb-2">
+                                  Ao finalizar o pedido, você será redirecionado para a página de pagamento do Mercado Pago, onde poderá escolher entre:
+                                </p>
+                                <ul className="list-disc pl-5 text-sm">
+                                  <li>Cartão de crédito (parcelamento em até 12x)</li>
+                                  <li>Cartão de débito</li>
+                                  <li>PIX (pagamento instantâneo)</li>
+                                  <li>Boleto bancário</li>
+                                </ul>
+                                <p className="text-sm mt-2">
+                                  Após confirmar o pagamento, você será redirecionado de volta ao site.
+                                </p>
                               </div>
                             </div>
                           )}
