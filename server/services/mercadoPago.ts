@@ -68,11 +68,11 @@ export async function createPaymentPreference(
     },
     external_reference: data.orderId.toString(), // Referência ao ID do pedido
     back_urls: {
-      success: `${baseUrl}/order-success/${data.orderId}?status=approved`,
-      failure: `${baseUrl}/order-success/${data.orderId}?status=failure`,
-      pending: `${baseUrl}/order-success/${data.orderId}?status=pending`,
+      success: `${baseUrl}/api/payment/mercadopago/verify?order_id=${data.orderId}&status=approved`,
+      failure: `${baseUrl}/api/payment/mercadopago/verify?order_id=${data.orderId}&status=failure`,
+      pending: `${baseUrl}/api/payment/mercadopago/verify?order_id=${data.orderId}&status=pending`,
     },
-    auto_return: 'approved', // Redireciona automaticamente após pagamento aprovado
+    auto_return: 'all', // Redireciona automaticamente para qualquer resultado
     statement_descriptor: 'PIZZARIA APP', // Aparece na fatura do cartão
   };
 
@@ -92,15 +92,39 @@ export async function createPaymentPreference(
 /**
  * Verifica o status de um pagamento
  * @param paymentId ID do pagamento no Mercado Pago
- * @returns Status do pagamento
+ * @returns Objeto com status do pagamento e detalhes adicionais
  */
 export async function getPaymentStatus(paymentId: string) {
   try {
     const response = await axios.get(`${MERCADO_PAGO_API.payments}/${paymentId}`, { headers });
-    return response.data.status;
+    return {
+      status: response.data.status,
+      statusDetail: response.data.status_detail,
+      dateApproved: response.data.date_approved,
+      paymentMethodId: response.data.payment_method_id,
+      paymentTypeId: response.data.payment_type_id,
+      transactionAmount: response.data.transaction_amount,
+      externalReference: response.data.external_reference,
+      isApproved: response.data.status === 'approved' || response.data.date_approved !== null
+    };
   } catch (error) {
     console.error('Erro ao verificar status do pagamento:', error);
     throw error;
+  }
+}
+
+/**
+ * Verifica se o pagamento foi realmente aprovado
+ * @param paymentId ID do pagamento no Mercado Pago
+ * @returns true se o pagamento foi aprovado, false caso contrário
+ */
+export async function verifyPaymentApproval(paymentId: string): Promise<boolean> {
+  try {
+    const paymentInfo = await getPaymentStatus(paymentId);
+    return paymentInfo.isApproved;
+  } catch (error) {
+    console.error('Erro ao verificar aprovação do pagamento:', error);
+    return false;
   }
 }
 
@@ -126,5 +150,6 @@ export async function cancelPayment(paymentId: string) {
 export const mercadoPagoService = {
   createPaymentPreference,
   getPaymentStatus,
+  verifyPaymentApproval,
   cancelPayment
 };

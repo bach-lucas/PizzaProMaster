@@ -1229,6 +1229,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rota para verificação de pagamentos (segurança contra fraude)
+  app.get("/api/payment/mercadopago/verify", async (req, res) => {
+    try {
+      const { order_id, payment_id, status } = req.query;
+      
+      if (!order_id) {
+        return res.status(400).json({ message: "ID do pedido não fornecido" });
+      }
+      
+      const orderId = parseInt(order_id as string);
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "ID do pedido inválido" });
+      }
+      
+      // Recuperar o pedido
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+        // Redirecionar para página inicial em caso de erro
+        // return res.redirect("/?error=order-not-found");
+      }
+      
+      // Se for pagamento em dinheiro, não precisamos verificar o status do Mercado Pago
+      if (order.paymentMethod === "cash_on_delivery") {
+        return res.redirect(`/order-success/${orderId}`);
+      }
+      
+      // Se houver ID de pagamento, verificar status
+      if (payment_id) {
+        const isPaymentApproved = await mercadoPagoService.verifyPaymentApproval(payment_id as string);
+        
+        if (isPaymentApproved) {
+          // Atualizar o status do pedido para "preparing"
+          await storage.updateOrderStatus(orderId, "preparing");
+          
+          // Redirecionar para página de sucesso
+          return res.redirect(`/order-success/${orderId}?status=approved`);
+        }
+      }
+      
+      // Se o status for "pending", não atualizamos o status do pedido
+      if (status === "pending") {
+        return res.redirect(`/order-success/${orderId}?status=pending`);
+      }
+      
+      // Para outros casos (failure ou payment_id ausente sem ser cash_on_delivery)
+      return res.redirect(`/order-success/${orderId}?status=failure`);
+    } catch (error) {
+      console.error("Erro ao verificar pagamento:", error);
+      return res.redirect("/?error=payment-verification-error");
+    }
+  });
+
   // Webhook para receber atualizações de pagamento do Mercado Pago
   app.post("/api/payment/mercadopago/webhook", async (req, res) => {
     try {
@@ -1242,27 +1295,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const paymentStatus = await mercadoPagoService.getPaymentStatus(paymentId);
         
         // Atualizar o status do pedido com base no status do pagamento
-        if (paymentStatus) {
-          const externalRef = data.external_reference;
-          if (externalRef) {
-            const orderId = parseInt(externalRef);
-            
-            let orderStatus = "pending";
-            switch (paymentStatus) {
-              case "approved":
-                orderStatus = "preparing";
-                break;
-              case "pending":
-                orderStatus = "pending";
-                break;
-              case "rejected":
-              case "cancelled":
-                orderStatus = "cancelled";
-                break;
-            }
-            
-            await storage.updateOrderStatus(orderId, orderStatus);
+        if (paymentStatus && paymentStatus.externalReference) {
+          const orderId = parseInt(paymentStatus.externalReference);
+          
+          let orderStatus = "pending";
+          switch (paymentStatus.status) {
+            case "approved":
+              orderStatus = "preparing";
+              break;
+            case "pending":
+              orderStatus = "pending";
+              break;
+            case "rejected":
+            case "cancelled":
+              orderStatus = "cancelled";
+              break;
           }
+          
+          await storage.updateOrderStatus(orderId, orderStatus);
         }
       }
       
