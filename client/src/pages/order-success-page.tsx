@@ -48,14 +48,31 @@ export default function OrderSuccessPage() {
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-2xl mx-auto">
-            <Card className="border-2 border-green-500">
-              <CardHeader className="text-center bg-green-50 border-b border-green-100">
-                <div className="mx-auto bg-green-100 text-green-700 rounded-full p-3 w-16 h-16 flex items-center justify-center mb-2">
-                  <Check className="h-8 w-8" />
+            <Card className={`border-2 ${paymentStatus === 'failure' ? 'border-red-500' : 'border-green-500'}`}>
+              <CardHeader className={`text-center ${paymentStatus === 'failure' ? 'bg-red-50 border-b border-red-100' : 'bg-green-50 border-b border-green-100'}`}>
+                <div className={`mx-auto rounded-full p-3 w-16 h-16 flex items-center justify-center mb-2 ${
+                  paymentStatus === 'failure' 
+                    ? 'bg-red-100 text-red-700' 
+                    : 'bg-green-100 text-green-700'
+                }`}>
+                  {paymentStatus === 'failure' 
+                    ? <AlertTriangle className="h-8 w-8" />
+                    : <Check className="h-8 w-8" />
+                  }
                 </div>
-                <CardTitle className="text-2xl font-heading text-green-700">Pedido Realizado com Sucesso!</CardTitle>
+                <CardTitle className={`text-2xl font-heading ${
+                  paymentStatus === 'failure' ? 'text-red-700' : 'text-green-700'
+                }`}>
+                  {paymentStatus === 'failure' 
+                    ? 'Pagamento Não Realizado' 
+                    : 'Pedido Realizado com Sucesso!'
+                  }
+                </CardTitle>
                 <CardDescription>
-                  Obrigado pelo seu pedido. Seu pedido foi recebido e está sendo processado.
+                  {paymentStatus === 'failure'
+                    ? 'Seu pedido foi cancelado por falta de confirmação do pagamento.'
+                    : 'Obrigado pelo seu pedido. Seu pedido foi recebido e está sendo processado.'
+                  }
                 </CardDescription>
               </CardHeader>
               
@@ -86,9 +103,9 @@ export default function OrderSuccessPage() {
                     {paymentStatus === "failure" && (
                       <Alert className="bg-red-50 border-red-200">
                         <AlertTriangle className="h-4 w-4 text-red-500" />
-                        <AlertTitle className="text-red-700">Pagamento não Aprovado</AlertTitle>
+                        <AlertTitle className="text-red-700">Pagamento não Realizado</AlertTitle>
                         <AlertDescription className="text-red-600">
-                          Houve um problema com seu pagamento. Por favor, entre em contato conosco ou tente novamente.
+                          Seu pagamento não foi realizado e o pedido foi cancelado. Por favor, faça um novo pedido.
                         </AlertDescription>
                       </Alert>
                     )}
@@ -182,12 +199,22 @@ export default function OrderSuccessPage() {
                           Voltar para a Página Inicial
                         </Button>
                       </Link>
-                      <Link href={`/track-order/${order.id}`}>
-                        <Button className="w-full bg-primary hover:bg-red-700">
-                          <Eye className="mr-2 h-4 w-4" />
-                          Acompanhar Pedido
-                        </Button>
-                      </Link>
+                      
+                      {paymentStatus === 'failure' ? (
+                        <Link href="/menu">
+                          <Button className="w-full bg-primary hover:bg-red-700">
+                            <ShoppingBag className="mr-2 h-4 w-4" />
+                            Fazer Novo Pedido
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Link href={`/track-order/${order.id}`}>
+                          <Button className="w-full bg-primary hover:bg-red-700">
+                            <Eye className="mr-2 h-4 w-4" />
+                            Acompanhar Pedido
+                          </Button>
+                        </Link>
+                      )}
                     </div>
                   </>
                 ) : (

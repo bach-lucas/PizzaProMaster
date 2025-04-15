@@ -131,8 +131,16 @@ export default function OrderTrackingPage() {
                         <div>
                           <h2 className="text-xl font-heading font-bold mb-2">Pedido Cancelado</h2>
                           <p className="text-gray-600">
-                            Infelizmente, este pedido foi cancelado. Por favor, entre em contato com o suporte ao cliente se tiver alguma dúvida.
+                            Este pedido foi cancelado devido à falta de confirmação do pagamento. Por favor, faça um novo pedido.
                           </p>
+                          <div className="mt-4">
+                            <Link href="/menu">
+                              <Button className="bg-primary hover:bg-red-700">
+                                <ShoppingBag className="mr-2 h-4 w-4" />
+                                Fazer Novo Pedido
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </CardContent>

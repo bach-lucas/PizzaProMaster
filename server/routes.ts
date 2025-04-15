@@ -1275,6 +1275,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Para outros casos (failure ou payment_id ausente sem ser cash_on_delivery)
+      // Cancelar o pedido automaticamente se o pagamento falhou
+      await storage.updateOrderStatus(orderId, "cancelled");
       return res.redirect(`/order-success/${orderId}?status=failure`);
     } catch (error) {
       console.error("Erro ao verificar pagamento:", error);
