@@ -93,9 +93,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/menu/delete/:id", async (req, res) => {
     try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid menu item ID" });
+      }
+      
+      // Buscar o item do menu antes de excluir para registrar no log
+      const menuItem = await storage.getMenuItem(id);
+      if (!menuItem) {
+        return res.status(404).json({ message: "Menu item not found" });
       }
       
       const success = await storage.deleteMenuItem(id);
@@ -104,8 +114,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Menu item not found" });
       }
       
+      // Registrar ação de administrador
+      await storage.logAdminAction({
+        adminId: req.user.id,
+        action: "delete",
+        entityType: "menu_item",
+        entityId: id,
+        details: `Excluiu o item de menu "${menuItem.name}" (ID: ${id})`,
+        ipAddress: req.ip
+      });
+      
       res.json({ message: "Menu item deleted successfully" });
     } catch (error) {
+      console.error("Erro ao excluir item de menu:", error);
       res.status(500).json({ message: "Error deleting menu item" });
     }
   });
@@ -172,9 +193,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/category/delete/:id", async (req, res) => {
     try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid category ID" });
+      }
+      
+      // Buscar a categoria antes de excluir para o log
+      const category = await storage.getCategory(id);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
       }
       
       const success = await storage.deleteCategory(id);
@@ -183,8 +214,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Category not found" });
       }
       
+      // Registrar ação de administrador
+      await storage.logAdminAction({
+        adminId: req.user.id,
+        action: "delete",
+        entityType: "category",
+        entityId: id,
+        details: `Excluiu a categoria "${category.name}" (ID: ${id})`,
+        ipAddress: req.ip
+      });
+      
       res.json({ message: "Category deleted successfully" });
     } catch (error) {
+      console.error("Erro ao excluir categoria:", error);
       res.status(500).json({ message: "Error deleting category" });
     }
   });
@@ -246,9 +288,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/offer/delete/:id", async (req, res) => {
     try {
+      if (!req.isAuthenticated() || (req.user.role !== "admin" && req.user.role !== "admin_master")) {
+        return res.status(403).json({ message: "Permissão de administrador necessária" });
+      }
+      
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid offer ID" });
+      }
+      
+      // Buscar a oferta antes de excluir para o log
+      const offer = await storage.getSpecialOffer(id);
+      if (!offer) {
+        return res.status(404).json({ message: "Special offer not found" });
       }
       
       const success = await storage.deleteSpecialOffer(id);
@@ -257,8 +309,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Special offer not found" });
       }
       
+      // Registrar ação de administrador
+      await storage.logAdminAction({
+        adminId: req.user.id,
+        action: "delete",
+        entityType: "offer",
+        entityId: id,
+        details: `Excluiu a oferta especial "${offer.name}" (ID: ${id})`,
+        ipAddress: req.ip
+      });
+      
       res.json({ message: "Special offer deleted successfully" });
     } catch (error) {
+      console.error("Erro ao excluir oferta especial:", error);
       res.status(500).json({ message: "Error deleting special offer" });
     }
   });
@@ -536,14 +599,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Você não pode excluir sua própria conta" });
       }
       
+      // Buscar usuário antes de excluir para ter informações para o log
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      
       const success = await storage.deleteUser(id);
       
       if (!success) {
         return res.status(404).json({ message: "Usuário não encontrado ou é o admin master (não pode ser excluído)" });
       }
       
+      // Registrar ação de administrador
+      await storage.logAdminAction({
+        adminId: req.user.id,
+        action: "delete",
+        entityType: "user",
+        entityId: id,
+        details: `Excluiu o usuário ${user.username} (${user.name})`,
+        ipAddress: req.ip
+      });
+      
       res.json({ message: "Usuário excluído com sucesso" });
     } catch (error) {
+      console.error("Erro ao excluir usuário:", error);
       res.status(500).json({ message: "Erro ao excluir usuário" });
     }
   });
