@@ -161,6 +161,43 @@ export default function PizzaBuilderPage() {
   const [selectedToppings, setSelectedToppings] = useState<PizzaTopping[]>([]);
   const [specialInstructions, setSpecialInstructions] = useState("");
   
+  // Estado para verificar se o usuário tentou pular etapas
+  const [showValidationError, setShowValidationError] = useState(false);
+  
+  // Verificar se as etapas anteriores foram concluídas
+  const canAccessSize = !!selectedBase;
+  const canAccessCrust = canAccessSize && !!selectedSize;
+  const canAccessSauce = canAccessCrust && !!selectedCrust;
+  const canAccessToppings = canAccessSauce && !!selectedSauce;
+  const canAccessReview = canAccessToppings;
+  
+  // Função para gerenciar a mudança de abas com validação
+  const handleTabChange = (value: string) => {
+    // Resetar mensagem de erro
+    setShowValidationError(false);
+    
+    // Verificar se o usuário pode acessar a aba desejada
+    if (
+      (value === "size" && !canAccessSize) ||
+      (value === "crust" && !canAccessCrust) ||
+      (value === "sauce" && !canAccessSauce) ||
+      (value === "toppings" && !canAccessToppings) ||
+      (value === "review" && !canAccessReview)
+    ) {
+      // Mostrar mensagem de erro
+      setShowValidationError(true);
+      toast({
+        title: "Atenção",
+        description: "Por favor, complete as etapas anteriores antes de avançar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Se a validação passar, muda para a aba desejada
+    setCurrentTab(value);
+  };
+  
   // Consultas para obter dados do servidor
   const { data: bases, isLoading: basesLoading } = useQuery<PizzaBase[]>({
     queryKey: ["/api/pizza/bases"],
@@ -200,19 +237,43 @@ export default function PizzaBuilderPage() {
   
   // Navegação entre abas
   const goToNextTab = () => {
-    if (currentTab === "base") setCurrentTab("size");
-    else if (currentTab === "size") setCurrentTab("crust");
-    else if (currentTab === "crust") setCurrentTab("sauce");
-    else if (currentTab === "sauce") setCurrentTab("toppings");
-    else if (currentTab === "toppings") setCurrentTab("review");
+    setShowValidationError(false);
+    
+    if (currentTab === "base" && canAccessSize) {
+      setCurrentTab("size");
+    } else if (currentTab === "size" && canAccessCrust) {
+      setCurrentTab("crust");
+    } else if (currentTab === "crust" && canAccessSauce) {
+      setCurrentTab("sauce");
+    } else if (currentTab === "sauce" && canAccessToppings) {
+      setCurrentTab("toppings");
+    } else if (currentTab === "toppings" && canAccessReview) {
+      setCurrentTab("review");
+    } else {
+      // Se tentar avançar sem completar a etapa atual
+      setShowValidationError(true);
+      toast({
+        title: "Atenção",
+        description: "Por favor, complete a etapa atual antes de avançar.",
+        variant: "destructive",
+      });
+    }
   };
   
   const goToPrevTab = () => {
-    if (currentTab === "size") setCurrentTab("base");
-    else if (currentTab === "crust") setCurrentTab("size");
-    else if (currentTab === "sauce") setCurrentTab("crust");
-    else if (currentTab === "toppings") setCurrentTab("sauce");
-    else if (currentTab === "review") setCurrentTab("toppings");
+    setShowValidationError(false);
+    
+    if (currentTab === "size") {
+      setCurrentTab("base");
+    } else if (currentTab === "crust") {
+      setCurrentTab("size");
+    } else if (currentTab === "sauce") {
+      setCurrentTab("crust");
+    } else if (currentTab === "toppings") {
+      setCurrentTab("sauce");
+    } else if (currentTab === "review") {
+      setCurrentTab("toppings");
+    }
   };
   
   // Toggle para seleção de toppings
@@ -365,15 +426,20 @@ export default function PizzaBuilderPage() {
         
         {/* Seleções */}
         <div className="order-1 lg:order-2">
-          <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+          <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="w-full mb-6">
               <TabsTrigger value="base" className="flex-1">Base</TabsTrigger>
-              <TabsTrigger value="size" className="flex-1">Tamanho</TabsTrigger>
-              <TabsTrigger value="crust" className="flex-1">Borda</TabsTrigger>
-              <TabsTrigger value="sauce" className="flex-1">Molho</TabsTrigger>
-              <TabsTrigger value="toppings" className="flex-1">Coberturas</TabsTrigger>
-              <TabsTrigger value="review" className="flex-1">Revisar</TabsTrigger>
+              <TabsTrigger value="size" className="flex-1" disabled={!canAccessSize}>Tamanho</TabsTrigger>
+              <TabsTrigger value="crust" className="flex-1" disabled={!canAccessCrust}>Borda</TabsTrigger>
+              <TabsTrigger value="sauce" className="flex-1" disabled={!canAccessSauce}>Molho</TabsTrigger>
+              <TabsTrigger value="toppings" className="flex-1" disabled={!canAccessToppings}>Coberturas</TabsTrigger>
+              <TabsTrigger value="review" className="flex-1" disabled={!canAccessReview}>Revisar</TabsTrigger>
             </TabsList>
+            {showValidationError && (
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded-md">
+                <p className="text-sm">Por favor, complete todas as etapas na ordem correta.</p>
+              </div>
+            )}
             
             {/* Base */}
             <TabsContent value="base">
