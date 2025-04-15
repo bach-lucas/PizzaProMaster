@@ -1156,7 +1156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let orderStatus = "pending";
           
           // Mapear status do pagamento para status do pedido
-          switch (paymentStatus) {
+          switch (paymentStatus.status) {
             case "approved":
               orderStatus = "preparing";
               break;

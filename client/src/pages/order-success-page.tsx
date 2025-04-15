@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useParams, useLocation } from "wouter";
+import { useEffect, useState } from "react";
+import { useParams, useLocation, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useCart } from "@/hooks/use-cart";
 import Header from "@/components/layout/header";
@@ -7,20 +7,26 @@ import Footer from "@/components/layout/footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Order } from "@shared/schema";
 import { formatCurrency } from "@/lib/utils";
-import { Home, Eye, ShoppingBag, Check } from "lucide-react";
+import { Home, Eye, ShoppingBag, Check, AlertTriangle, Info } from "lucide-react";
 import { Link } from "wouter";
 
 export default function OrderSuccessPage() {
   const { id } = useParams<{ id: string }>();
   const [location, navigate] = useLocation();
   const { clearCart } = useCart();
+  const [redirected, setRedirected] = useState(false);
   
-  // Clear cart on successful order
+  // Extrair status de pagamento da URL se existir
+  const searchParams = new URLSearchParams(window.location.search);
+  const paymentStatus = searchParams.get('status');
+  
+  // Clear cart on successful order - only once
   useEffect(() => {
     clearCart();
-  }, [clearCart]);
+  }, []);
   
   // Fetch order details
   const { data: order, isLoading, error } = useQuery<Order>({
@@ -28,12 +34,13 @@ export default function OrderSuccessPage() {
     enabled: !!id,
   });
   
-  // If order not found, redirect to home using useEffect to avoid doing this during render
+  // If order not found, redirect to home - but only once to prevent infinite loop
   useEffect(() => {
-    if (error) {
+    if (error && !redirected) {
+      setRedirected(true);
       navigate("/");
     }
-  }, [error, navigate]);
+  }, [error]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -53,6 +60,41 @@ export default function OrderSuccessPage() {
               </CardHeader>
               
               <CardContent className="pt-6">
+                {/* Status do pagamento */}
+                {paymentStatus && order && order.paymentMethod === "mercadopago" && (
+                  <div className="mb-6">
+                    {paymentStatus === "approved" && (
+                      <Alert className="bg-green-50 border-green-200">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <AlertTitle className="text-green-700">Pagamento Aprovado</AlertTitle>
+                        <AlertDescription className="text-green-600">
+                          Seu pagamento foi aprovado com sucesso. Sua pizza já está em preparo!
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {paymentStatus === "pending" && (
+                      <Alert className="bg-yellow-50 border-yellow-200">
+                        <Info className="h-4 w-4 text-yellow-500" />
+                        <AlertTitle className="text-yellow-700">Pagamento Pendente</AlertTitle>
+                        <AlertDescription className="text-yellow-600">
+                          Seu pagamento está em processamento. Assim que for confirmado, iniciaremos o preparo do seu pedido.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {paymentStatus === "failure" && (
+                      <Alert className="bg-red-50 border-red-200">
+                        <AlertTriangle className="h-4 w-4 text-red-500" />
+                        <AlertTitle className="text-red-700">Pagamento não Aprovado</AlertTitle>
+                        <AlertDescription className="text-red-600">
+                          Houve um problema com seu pagamento. Por favor, entre em contato conosco ou tente novamente.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                )}
+                
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
