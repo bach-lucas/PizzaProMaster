@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { formatCurrency } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoIcon, AlertTriangle } from "lucide-react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import {
@@ -34,6 +36,7 @@ const checkoutSchema = z.object({
     required_error: "Por favor, selecione um método de pagamento",
   }),
   orderNotes: z.string().optional(),
+  isPickup: z.boolean().default(false),
 });
 
 type CheckoutValues = z.infer<typeof checkoutSchema>;
@@ -46,6 +49,19 @@ export default function CheckoutPage() {
 
   // State para gerenciar o redirecionamento ao Mercado Pago
   const [mercadoPagoUrl, setMercadoPagoUrl] = useState<string | null>(null);
+  
+  // State para gerenciar tipo de entrega
+  const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
+  
+  // Buscar endereços do usuário
+  const { data: addresses = [], isLoading: isLoadingAddresses } = useQuery({
+    queryKey: ['/api/addresses'],
+    queryFn: getQueryFn({ on401: 'returnNull' }),
+    enabled: !!user,
+  });
+  
+  // Selecionar o endereço favorito ou o primeiro disponível
+  const primaryAddress = addresses?.find((address: any) => address.isDefault) || addresses?.[0];
 
   // Create form
   const form = useForm<CheckoutValues>({
@@ -54,11 +70,23 @@ export default function CheckoutPage() {
       address: "",
       paymentMethod: "mercadopago",
       orderNotes: "",
+      isPickup: false,
     },
   });
 
-  // Watch payment method to conditionally show fields
+  // Watch fields to conditionally show other form elements
   const paymentMethod = form.watch("paymentMethod");
+  const isPickup = form.watch("isPickup");
+  
+  // Formatar o endereço principal quando disponível
+  useEffect(() => {
+    if (primaryAddress) {
+      const formattedAddress = `${primaryAddress.street}, ${primaryAddress.number} - ${primaryAddress.neighborhood}
+${primaryAddress.complement ? primaryAddress.complement + '\n' : ''}${primaryAddress.city} - ${primaryAddress.state}, CEP: ${primaryAddress.zipCode}`;
+      
+      form.setValue("address", formattedAddress);
+    }
+  }, [primaryAddress, form]);
 
   // Create order mutation
   const createOrderMutation = useMutation({
@@ -106,14 +134,19 @@ export default function CheckoutPage() {
   };
 
   const onSubmit = (values: CheckoutValues) => {
+    // Se for retirada no local, o pagamento é sempre na entrega
+    const finalPaymentMethod = values.isPickup ? "cash_on_delivery" : values.paymentMethod;
+    
     // Create order data
     const orderData = {
       items: items,
       subtotal,
-      deliveryFee,
-      total,
-      address: values.address,
-      paymentMethod: values.paymentMethod,
+      deliveryFee: values.isPickup ? 0 : deliveryFee, // Sem taxa de entrega para retirada no local
+      total: values.isPickup ? subtotal : total,
+      address: values.isPickup ? "Retirada no local" : values.address,
+      paymentMethod: finalPaymentMethod,
+      orderNotes: values.orderNotes,
+      isPickup: values.isPickup,
       status: "pending",
     };
 
@@ -232,21 +265,81 @@ export default function CheckoutPage() {
                         <>
                           <FormField
                             control={form.control}
-                            name="address"
+                            name="isPickup"
                             render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Endereço de Entrega</FormLabel>
+                              <FormItem className="space-y-2">
+                                <FormLabel>Você deseja retirar a pizza no local?</FormLabel>
                                 <FormControl>
-                                  <Textarea
-                                    placeholder="Digite seu endereço completo com CEP"
-                                    className="resize-none"
-                                    {...field}
-                                  />
+                                  <RadioGroup
+                                    onValueChange={(value) => field.onChange(value === "true")}
+                                    defaultValue={field.value ? "true" : "false"}
+                                    className="flex space-x-6"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="true" id="pickup-yes" />
+                                      <Label htmlFor="pickup-yes">Sim</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="false" id="pickup-no" />
+                                      <Label htmlFor="pickup-no">Não</Label>
+                                    </div>
+                                  </RadioGroup>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
+                          
+                          {isPickup && (
+                            <Alert className="bg-blue-50 border-blue-200">
+                              <InfoIcon className="h-4 w-4 text-blue-500" />
+                              <AlertTitle className="text-blue-700">Retirada no local</AlertTitle>
+                              <AlertDescription className="text-blue-600">
+                                Ao optar por retirada no local, o pagamento deverá ser realizado no momento da retirada.
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                          
+                          {!isPickup && (
+                            <>
+                              {addresses && addresses.length === 0 ? (
+                                <Alert className="bg-amber-50 border-amber-200">
+                                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                                  <AlertTitle className="text-amber-700">Nenhum endereço cadastrado</AlertTitle>
+                                  <AlertDescription className="text-amber-600">
+                                    Cadastre um endereço em "Meu Perfil &gt; Meus Endereços" para continuar com o pedido.
+                                    <div className="mt-2">
+                                      <Button 
+                                        variant="outline" 
+                                        className="text-amber-600 border-amber-300"
+                                        onClick={() => navigate("/profile")}
+                                      >
+                                        Ir para Meu Perfil
+                                      </Button>
+                                    </div>
+                                  </AlertDescription>
+                                </Alert>
+                              ) : (
+                                <FormField
+                                  control={form.control}
+                                  name="address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Endereço para entrega:</FormLabel>
+                                      <FormControl>
+                                        <Textarea
+                                          className="resize-none"
+                                          {...field}
+                                          readOnly={!!primaryAddress}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              )}
+                            </>
+                          )}
 
                           <FormField
                             control={form.control}
@@ -256,7 +349,10 @@ export default function CheckoutPage() {
                                 <FormLabel>Observações do Pedido (Opcional)</FormLabel>
                                 <FormControl>
                                   <Textarea
-                                    placeholder="Instruções especiais para entrega"
+                                    placeholder={isPickup 
+                                      ? "Ex: Hora aproximada de retirada, nome de quem vai retirar, etc."
+                                      : "Ex: Instruções especiais para entrega, sem cebola, entregar no portão lateral, etc."
+                                    }
                                     className="resize-none"
                                     {...field}
                                   />
@@ -270,6 +366,7 @@ export default function CheckoutPage() {
                             type="button"
                             className="w-full bg-primary hover:bg-red-700"
                             onClick={() => setPaymentStep(2)}
+                            disabled={!isPickup && (!addresses || addresses.length === 0)}
                           >
                             Continuar para Pagamento
                           </Button>
