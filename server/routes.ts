@@ -399,6 +399,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error updating order status" });
     }
   });
+  
+  // Excluir pedido (apenas admin_master pode excluir pedidos)
+  app.delete("/api/orders/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || req.user.role !== "admin_master") {
+        return res.status(403).json({ message: "Somente Administrador Master pode excluir pedidos" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID de pedido inválido" });
+      }
+      
+      // Verificar se o pedido existe
+      const order = await storage.getOrder(id);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+      
+      const result = await storage.deleteOrder(id);
+      
+      if (result) {
+        // Registrar ação de administrador
+        await storage.logAdminAction({
+          adminId: req.user.id,
+          action: "delete",
+          entityType: "order",
+          entityId: id,
+          details: `Excluiu o pedido #${id}`,
+          ipAddress: req.ip
+        });
+        
+        res.status(200).json({ message: "Pedido excluído com sucesso" });
+      } else {
+        res.status(500).json({ message: "Erro ao excluir pedido" });
+      }
+    } catch (error) {
+      console.error("Erro ao excluir pedido:", error);
+      res.status(500).json({ message: "Erro ao excluir pedido" });
+    }
+  });
 
   // User management (admin only)
   app.get("/api/users", async (req, res) => {

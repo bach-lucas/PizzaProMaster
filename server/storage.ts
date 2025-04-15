@@ -1313,6 +1313,14 @@ export class DatabaseStorage implements IStorage {
     
     return updatedOrder;
   }
+  
+  async deleteOrder(id: number): Promise<boolean> {
+    const result = await db
+      .delete(orders)
+      .where(eq(orders.id, id));
+    
+    return result.rowCount > 0;
+  }
 
   // Pizza customization operations - valores fixos
   private pizzaBases: PizzaBase[] = [
