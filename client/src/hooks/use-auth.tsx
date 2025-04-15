@@ -79,13 +79,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Registration successful",
-        description: `Welcome, ${user.name}!`,
+        title: "Cadastro realizado com sucesso",
+        description: `Bem-vindo, ${user.name}!`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Registration failed",
+        title: "Falha ao realizar cadastro",
         description: error.message,
         variant: "destructive",
       });
