@@ -56,18 +56,20 @@ export default function Header() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <div 
-              className="relative cursor-pointer" 
-              onClick={openCart}
-              aria-label="Shopping cart"
-            >
-              <ShoppingCart className="text-xl text-textColor" />
-              {itemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  {itemCount}
-                </span>
-              )}
-            </div>
+            {location !== '/auth' && (
+              <div 
+                className="relative cursor-pointer" 
+                onClick={openCart}
+                aria-label="Shopping cart"
+              >
+                <ShoppingCart className="text-xl text-textColor" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    {itemCount}
+                  </span>
+                )}
+              </div>
+            )}
             
             <div className="hidden md:block">
               {user ? (
@@ -155,8 +157,8 @@ export default function Header() {
         )}
       </div>
       
-      {/* Cart Modal */}
-      <CartModal />
+      {/* Cart Modal - only render when not on auth page */}
+      {location !== '/auth' && <CartModal />}
     </header>
   );
 }

@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from "react";
 import { OrderItem } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 interface CartItem extends OrderItem {
   specialInstructions?: string;
@@ -31,9 +32,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [location] = useLocation();
 
-  // Load cart from localStorage on initial render
+  // Load cart from localStorage on initial render (except on auth page)
   useEffect(() => {
+    // If on auth page, clear cart state
+    if (location === '/auth') {
+      setItems([]);
+      return;
+    }
+    
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       try {
@@ -42,12 +50,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error('Failed to parse saved cart:', error);
       }
     }
-  }, []);
+  }, [location]);
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to localStorage whenever it changes (except on auth page)
   useEffect(() => {
+    // Don't save cart if we're on auth page
+    if (location === '/auth') {
+      return;
+    }
     localStorage.setItem('cart', JSON.stringify(items));
-  }, [items]);
+  }, [items, location]);
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const total = subtotal + DELIVERY_FEE;
