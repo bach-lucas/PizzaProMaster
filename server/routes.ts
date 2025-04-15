@@ -1282,47 +1282,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Webhook para receber atualizações de pagamento do Mercado Pago
-  app.post("/api/payment/mercadopago/webhook", async (req, res) => {
-    try {
-      const { action, data } = req.body;
-      
-      // Processar somente notificações de pagamento
-      if (action === "payment.created" || action === "payment.updated") {
-        const paymentId = data.id;
-        
-        // Buscar detalhes do pagamento
-        const paymentStatus = await mercadoPagoService.getPaymentStatus(paymentId);
-        
-        // Atualizar o status do pedido com base no status do pagamento
-        if (paymentStatus && paymentStatus.externalReference) {
-          const orderId = parseInt(paymentStatus.externalReference);
-          
-          let orderStatus = "pending";
-          switch (paymentStatus.status) {
-            case "approved":
-              orderStatus = "preparing";
-              break;
-            case "pending":
-              orderStatus = "pending";
-              break;
-            case "rejected":
-            case "cancelled":
-              orderStatus = "cancelled";
-              break;
-          }
-          
-          await storage.updateOrderStatus(orderId, orderStatus);
-        }
-      }
-      
-      res.status(200).end();
-    } catch (error) {
-      console.error("Erro no webhook do Mercado Pago:", error);
-      res.status(500).end();
-    }
-  });
-
   const httpServer = createServer(app);
   return httpServer;
 }
