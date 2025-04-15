@@ -7,6 +7,7 @@ import {
 import { insertUserSchema, User as SelectUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { z } from "zod";
 
 type AuthContextType = {
@@ -36,6 +37,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const {
     data: user,
     error,
@@ -54,13 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Logged in successfully",
-        description: `Welcome back, ${user.name}!`,
+        title: "Login realizado com sucesso",
+        description: `Bem-vindo de volta, ${user.name}!`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Login failed",
+        title: "Falha ao realizar login",
         description: error.message,
         variant: "destructive",
       });
@@ -97,12 +99,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
       toast({
-        title: "Logged out successfully",
+        title: "Sessão encerrada com sucesso",
       });
+      // Redirecionar para a página de autenticação
+      setLocation("/auth");
     },
     onError: (error: Error) => {
       toast({
-        title: "Logout failed",
+        title: "Falha ao encerrar sessão",
         description: error.message,
         variant: "destructive",
       });
