@@ -89,10 +89,10 @@ export default function CheckoutPage() {
         window.location.href = data.initPoint;
       }
     },
-    onError: (error) => {
+    onError: (error: any, variables: any) => {
       console.error("Erro ao criar preferência de pagamento:", error);
       // Mostrar mensagem de erro e redirecionar para a página de sucesso com status de erro
-      navigate(`/order-success/${data.orderId}?status=failure`);
+      navigate(`/order-success/${variables.orderId}?status=failure`);
     }
   });
   
