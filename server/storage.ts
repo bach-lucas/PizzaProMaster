@@ -106,6 +106,7 @@ export interface IStorage {
   getUserOrders(userId: number): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  deleteOrder(id: number): Promise<boolean>;
 
   // Pizza customization operations
   getPizzaBases(): Promise<PizzaBase[]>;
@@ -598,6 +599,10 @@ export class MemStorage implements IStorage {
     };
     this.ordersMap.set(id, updatedOrder);
     return updatedOrder;
+  }
+  
+  async deleteOrder(id: number): Promise<boolean> {
+    return this.ordersMap.delete(id);
   }
 
   // Pizza bases
