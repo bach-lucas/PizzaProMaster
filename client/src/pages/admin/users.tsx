@@ -1,4 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
@@ -9,8 +10,18 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { User } from "@shared/schema";
-import { Users as UsersIcon, ChevronDown, UserCheck, UserMinus } from "lucide-react";
+import { Users as UsersIcon, ChevronDown, UserCheck, UserMinus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -27,6 +38,10 @@ export default function Users() {
   const { data: users, isLoading } = useQuery<any[]>({
     queryKey: ["/api/users"],
   });
+
+  // State para o modal de confirmação de exclusão
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{ id: number, name: string, username: string } | null>(null);
   
   // Mutation para alterar a função do usuário
   const changeRoleMutation = useMutation({
@@ -40,7 +55,8 @@ export default function Users() {
         "update_role",
         "user",
         variables.userId,
-        `Alterou função do usuário ${variables.username} para ${getRoleName(variables.newRole)}`
+        `Administrador alterou função de usuário
+${variables.username} → ${getRoleName(variables.newRole)}`
       );
       
       toast({
@@ -55,6 +71,46 @@ export default function Users() {
         description: error.message,
         variant: "destructive",
       });
+    },
+  });
+  
+  // Mutation para excluir usuário
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const res = await apiRequest("DELETE", `/api/users/${userId}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Erro ao excluir usuário");
+      }
+      return true;
+    },
+    onSuccess: (_, userId) => {
+      // Registra a ação no log do administrador
+      if (userToDelete) {
+        logAction(
+          "delete",
+          "user",
+          userId,
+          `Administrador excluiu usuário
+${userToDelete.username} (${userToDelete.name})`
+        );
+      }
+      
+      toast({
+        title: "Usuário excluído",
+        description: "O usuário foi excluído com sucesso.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      setDeleteModalOpen(false);
+      setUserToDelete(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao excluir usuário",
+        description: error.message,
+        variant: "destructive",
+      });
+      setDeleteModalOpen(false);
     },
   });
   
@@ -183,6 +239,40 @@ export default function Users() {
     },
   ];
 
+  // Adicionar coluna de exclusão de usuário somente para admin_master
+  if (currentUser?.role === "admin_master") {
+    userColumns.push({
+      header: "Excluir",
+      id: "delete",
+      cell: (row: any) => {
+        // Não permitir exclusão do próprio usuário ou do admin_master
+        const isSelf = row.id === currentUser?.id;
+        const isAdminMaster = row.role === "admin_master";
+        
+        if (isSelf || isAdminMaster || row.id === 1) {
+          return null;
+        }
+        
+        return (
+          <Button 
+            variant="destructive" 
+            size="sm"
+            onClick={() => {
+              setUserToDelete({
+                id: row.id,
+                name: row.name,
+                username: row.username
+              });
+              setDeleteModalOpen(true);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        );
+      }
+    });
+  }
+
   return (
     <AdminLayout title="Gerenciamento de Usuários" showBackButton>
       <Card>
@@ -210,7 +300,33 @@ export default function Users() {
             </div>
           )}
         </CardContent>
-        </Card>
+      </Card>
+      
+      {/* Modal de confirmação de exclusão */}
+      <AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o usuário <span className="font-bold">{userToDelete?.name}</span> ({userToDelete?.username})?
+              <br />
+              <br />
+              <span className="text-red-600 font-semibold">Atenção:</span> Esta ação não pode ser desfeita.
+              Todos os dados associados a este usuário também serão excluídos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-destructive hover:bg-destructive/90" 
+              onClick={() => userToDelete && deleteUserMutation.mutate(userToDelete.id)}
+              disabled={deleteUserMutation.isPending}
+            >
+              {deleteUserMutation.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }
