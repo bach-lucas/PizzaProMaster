@@ -17,8 +17,18 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter
+  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,13 +36,19 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Order } from "@shared/schema";
 import { formatCurrency } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { ClipboardList, Search, Package, RefreshCw } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useAdminLogs } from "@/hooks/use-admin-logs";
+import { ClipboardList, Search, Package, RefreshCw, Trash2 } from "lucide-react";
 
 export default function Orders() {
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
+  const { logAction } = useAdminLogs();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
 
   // Fetch all orders
   const { data: orders, isLoading } = useQuery<Order[]>({
@@ -48,16 +64,48 @@ export default function Orders() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       toast({
-        title: "Order status updated",
-        description: "The order status has been successfully updated.",
+        title: "Status do pedido atualizado",
+        description: "O status do pedido foi atualizado com sucesso.",
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: `Failed to update order status: ${error.message}`,
+        title: "Erro",
+        description: `Falha ao atualizar status do pedido: ${error.message}`,
         variant: "destructive",
       });
+    },
+  });
+  
+  // Delete order mutation
+  const deleteOrderMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/orders/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({
+        title: "Pedido excluído",
+        description: "O pedido foi excluído com sucesso.",
+      });
+      setDeleteModalOpen(false);
+      setOrderToDelete(null);
+      
+      // Log admin action
+      logAction({
+        action: "delete",
+        entityType: "order",
+        entityId: orderToDelete?.id || 0,
+        details: `Excluiu o pedido #${orderToDelete?.id}`
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: `Falha ao excluir o pedido: ${error.message}`,
+        variant: "destructive",
+      });
+      setDeleteModalOpen(false);
     },
   });
 
@@ -171,6 +219,21 @@ export default function Orders() {
               <SelectItem value="cancelled">Cancelado</SelectItem>
             </SelectContent>
           </Select>
+          
+          {/* Somente admin_master pode excluir pedidos */}
+          {currentUser?.role === 'admin_master' && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-600 border-red-200 hover:bg-red-50"
+              onClick={() => {
+                setOrderToDelete(row);
+                setDeleteModalOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -258,6 +321,37 @@ export default function Orders() {
         </CardContent>
       </Card>
 
+      {/* Delete Order Confirmation */}
+      <AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o pedido #{orderToDelete?.id}?
+              <br />
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => orderToDelete && deleteOrderMutation.mutate(orderToDelete.id)}
+              disabled={deleteOrderMutation.isPending}
+            >
+              {deleteOrderMutation.isPending ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                <>Excluir</>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       {/* Order Details Dialog */}
       {selectedOrder && (
         <Dialog open={showOrderDetails} onOpenChange={setShowOrderDetails}>
