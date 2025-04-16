@@ -66,7 +66,7 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
             onClick={handleAddToCart}
             className="bg-[#D73C2C] hover:bg-red-700 text-white rounded-full"
           >
-            Add to Cart
+            Adicionar ao Carrinho
           </Button>
         </div>
       </CardContent>

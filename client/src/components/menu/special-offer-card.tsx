@@ -45,7 +45,7 @@ export default function SpecialOfferCard({ offer, isInverted = false }: SpecialO
           className="bg-white hover:bg-gray-100 font-bold py-2 px-6 rounded-full"
           style={{ color: isInverted ? '#2C5530' : '#D73C2C' }}
         >
-          Add to Cart
+          Adicionar ao Carrinho
         </Button>
       </div>
     </div>
