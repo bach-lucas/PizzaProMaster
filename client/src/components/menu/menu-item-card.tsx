@@ -28,12 +28,17 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
       case 'popular':
       case 'bestseller':
       case 'fire':
+      case 'mais pedida':
+      case 'fogo':
         return <Flame className="text-[#FFA41B] h-4 w-4 mr-1" />;
       case 'veggie':
       case 'vegetarian':
       case 'vegan':
+      case 'vegetariana':
+      case 'vegana':
         return <Leaf className="text-[#2C5530] h-4 w-4 mr-1" />;
       case 'spicy':
+      case 'picante':
         return <AlertTriangle className="text-[#D73C2C] h-4 w-4 mr-1" />;
       default:
         return null;
