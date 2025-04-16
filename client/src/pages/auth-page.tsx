@@ -261,37 +261,37 @@ export default function AuthPage() {
 
             {/* Hero Section */}
             <div className="bg-[#2C5530] text-white p-8 rounded-lg hidden md:block">
-              <h2 className="font-heading text-3xl font-bold mb-4">Delicious Pizza at Your Fingertips</h2>
+              <h2 className="font-heading text-3xl font-bold mb-4">Deliciosas Pizzas ao Seu Alcance</h2>
               <p className="mb-6">
-                Create an account to enjoy exclusive offers, track your orders, and save your favorite pizzas for quick ordering.
+                Crie uma conta para desfrutar de ofertas exclusivas, acompanhar seus pedidos e salvar seus endereços para pedidos mais rápidos.
               </p>
               
               <div className="mb-8">
-                <h3 className="font-heading text-xl font-semibold mb-3">Member Benefits:</h3>
+                <h3 className="font-heading text-xl font-semibold mb-3">Benefícios para Membros:</h3>
                 <ul className="space-y-2">
                   <li className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#FFA41B]" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    Special member-only discounts
+                    Descontos exclusivos para membros
                   </li>
                   <li className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#FFA41B]" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    Track your current and past orders
+                    Acompanhe seus pedidos atuais e passados
                   </li>
                   <li className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#FFA41B]" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    Save your delivery address
+                    Salve seus endereços de entrega
                   </li>
                   <li className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#FFA41B]" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    Faster checkout experience
+                    Experiência de checkout mais rápida
                   </li>
                 </ul>
               </div>
@@ -299,7 +299,7 @@ export default function AuthPage() {
               <div className="mt-auto">
                 <img 
                   src="https://images.unsplash.com/photo-1590947132387-155cc02f3212?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                  alt="Authentic Italian Pizza" 
+                  alt="Pizza Italiana Autêntica" 
                   className="rounded-lg shadow-lg max-h-48 object-cover w-full"
                 />
               </div>
