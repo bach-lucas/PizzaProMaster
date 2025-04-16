@@ -33,11 +33,12 @@ import {
   type OrderSettings,
   type GeneralPreferences
 } from "@shared/schema";
-import { db, sql } from "./db";
+import { db } from "./db";
 import { eq, desc, and, inArray, or, isNull } from "drizzle-orm";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
 const MemoryStore = createMemoryStore(session);
 const PostgresSessionStore = connectPg(session);
@@ -1098,7 +1099,7 @@ export class DatabaseStorage implements IStorage {
   
   constructor() {
     this.sessionStore = new PostgresSessionStore({
-      conString: process.env.DATABASE_URL,
+      pool,
       createTableIfMissing: true,
     });
   }
