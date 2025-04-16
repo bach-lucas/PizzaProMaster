@@ -1597,5 +1597,6 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Usando o armazenamento com banco de dados PostgreSQL
-export const storage = new DatabaseStorage();
+// Temporariamente usando armazenamento em memória devido a problemas de conexão com PostgreSQL
+// Quando o problema de conexão for resolvido, voltar para DatabaseStorage
+export const storage = new MemStorage();
