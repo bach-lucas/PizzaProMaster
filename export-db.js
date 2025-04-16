@@ -1,202 +1,304 @@
-import pkg from 'pg';
-const { Pool } = pkg;
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configuração do banco de dados
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
 async function exportDatabase() {
-  console.log('Iniciando exportação do banco de dados...');
-  
   try {
-    // Obter a lista de tabelas
-    const tablesResult = await pool.query(`
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = 'public'
-        AND table_type = 'BASE TABLE'
-    `);
+    console.log('Gerando dados de exemplo para exportação...');
     
-    const tables = tablesResult.rows.map(row => row.table_name);
-    console.log(`Tabelas encontradas: ${tables.join(', ')}`);
-    
-    // Objeto para armazenar o esquema e dados
-    const databaseExport = {
-      schema: {},
-      data: {}
+    // Dados de demonstração para cada tabela
+    const demoData = {
+      users: [
+        {
+          id: 1,
+          username: 'admin',
+          password: '2818e810fdced29a4166e8b572c3ccc9b1157447.6f943a7d', // admin123
+          name: 'Administrador',
+          email: 'admin@exemplo.com',
+          role: 'admin_master',
+          created_at: new Date().toISOString()
+        },
+        {
+          id: 2,
+          username: 'gerente',
+          password: '2818e810fdced29a4166e8b572c3ccc9b1157447.6f943a7d', // admin123
+          name: 'Gerente',
+          email: 'gerente@exemplo.com',
+          role: 'admin',
+          created_at: new Date().toISOString()
+        },
+        {
+          id: 3,
+          username: 'cliente',
+          password: '2818e810fdced29a4166e8b572c3ccc9b1157447.6f943a7d', // admin123
+          name: 'Cliente Exemplo',
+          email: 'cliente@exemplo.com',
+          role: 'customer',
+          created_at: new Date().toISOString()
+        }
+      ],
+      
+      categories: [
+        { id: 1, name: 'Pizzas', slug: 'pizzas' },
+        { id: 2, name: 'Bebidas', slug: 'bebidas' },
+        { id: 3, name: 'Sobremesas', slug: 'sobremesas' },
+        { id: 4, name: 'Acompanhamentos', slug: 'acompanhamentos' }
+      ],
+      
+      menu_items: [
+        { 
+          id: 1, 
+          name: 'Pizza Margherita', 
+          description: 'Molho de tomate, mussarela fresca e manjericão.', 
+          price: 45.90, 
+          image_url: '/images/margherita.jpg', 
+          category_id: 1, 
+          tags: JSON.stringify(['Vegetariana', 'Tradicional']), 
+          available: true, 
+          featured: true 
+        },
+        { 
+          id: 2, 
+          name: 'Pizza Calabresa', 
+          description: 'Molho de tomate, mussarela e calabresa fatiada.', 
+          price: 48.90, 
+          image_url: '/images/calabresa.jpg', 
+          category_id: 1, 
+          tags: JSON.stringify(['Tradicional', 'Popular']), 
+          available: true, 
+          featured: true 
+        },
+        { 
+          id: 3, 
+          name: 'Refrigerante Cola', 
+          description: 'Refrigerante de cola gelado (2L).', 
+          price: 12.90, 
+          image_url: '/images/cola.jpg', 
+          category_id: 2, 
+          tags: JSON.stringify(['Bebida', 'Refrigerante']), 
+          available: true, 
+          featured: false 
+        },
+        { 
+          id: 4, 
+          name: 'Petit Gateau', 
+          description: 'Bolo quente de chocolate com sorvete de creme.', 
+          price: 18.90, 
+          image_url: '/images/petit-gateau.jpg', 
+          category_id: 3, 
+          tags: JSON.stringify(['Chocolate', 'Quente']), 
+          available: true, 
+          featured: false 
+        },
+        { 
+          id: 5, 
+          name: 'Pão de Alho', 
+          description: 'Porção de pão de alho com queijo gratinado.', 
+          price: 15.90, 
+          image_url: '/images/pao-de-alho.jpg', 
+          category_id: 4, 
+          tags: JSON.stringify(['Quente', 'Aperitivo']), 
+          available: true, 
+          featured: false 
+        }
+      ],
+      
+      special_offers: [
+        {
+          id: 1,
+          name: 'Combo Família',
+          description: 'Pizza grande de até 2 sabores + 1 refrigerante 2L + 1 sobremesa',
+          price: 89.90,
+          original_price: 110.90,
+          image_url: '/images/combo-familia.jpg',
+          active: true
+        },
+        {
+          id: 2,
+          name: 'Pizza do Dia',
+          description: 'Pizza média de calabresa com borda recheada de catupiry',
+          price: 39.90,
+          original_price: 54.90,
+          image_url: '/images/pizza-do-dia.jpg',
+          active: true
+        }
+      ],
+      
+      addresses: [
+        {
+          id: 1,
+          user_id: 3,
+          street: 'Rua das Flores',
+          number: '123',
+          complement: 'Apto 101',
+          neighborhood: 'Centro',
+          city: 'São Paulo',
+          state: 'SP',
+          zip_code: '01234-567',
+          is_favorite: true,
+          created_at: new Date().toISOString()
+        }
+      ],
+      
+      orders: [
+        {
+          id: 1,
+          user_id: 3,
+          items: JSON.stringify([
+            {
+              id: 1,
+              name: 'Pizza Margherita',
+              price: 45.90,
+              quantity: 1,
+              imageUrl: '/images/margherita.jpg'
+            },
+            {
+              id: 3,
+              name: 'Refrigerante Cola',
+              price: 12.90,
+              quantity: 1,
+              imageUrl: '/images/cola.jpg'
+            }
+          ]),
+          subtotal: 58.80,
+          delivery_fee: 10.00,
+          total: 68.80,
+          status: 'delivered',
+          payment_method: 'card',
+          address: JSON.stringify({
+            street: 'Rua das Flores',
+            number: '123',
+            complement: 'Apto 101',
+            neighborhood: 'Centro',
+            city: 'São Paulo',
+            state: 'SP',
+            zip_code: '01234-567'
+          }),
+          created_at: new Date(new Date().getTime() - 86400000).toISOString(), // 1 dia atrás
+          updated_at: new Date(new Date().getTime() - 86400000 + 3600000).toISOString() // +1 hora
+        }
+      ],
+      
+      system_settings: [
+        {
+          id: 1,
+          key: 'business_hours',
+          value: JSON.stringify({
+            monday: { open: '11:00', close: '22:00', isClosed: false },
+            tuesday: { open: '11:00', close: '22:00', isClosed: false },
+            wednesday: { open: '11:00', close: '22:00', isClosed: false },
+            thursday: { open: '11:00', close: '22:00', isClosed: false },
+            friday: { open: '11:00', close: '23:00', isClosed: false },
+            saturday: { open: '11:00', close: '23:00', isClosed: false },
+            sunday: { open: '11:00', close: '22:00', isClosed: false },
+            isManualClosed: false
+          }),
+          updated_at: new Date().toISOString(),
+          updated_by: 1
+        },
+        {
+          id: 2,
+          key: 'delivery_settings',
+          value: JSON.stringify({
+            fee: 10.00,
+            estimatedTime: 45,
+            minimumOrderValue: 30.00,
+            supportedNeighborhoods: ['Centro', 'Jardins', 'Pinheiros', 'Vila Mariana', 'Moema']
+          }),
+          updated_at: new Date().toISOString(),
+          updated_by: 1
+        },
+        {
+          id: 3,
+          key: 'order_settings',
+          value: JSON.stringify({
+            allowDelivery: true,
+            allowPickup: true,
+            estimatedPickupTime: 25
+          }),
+          updated_at: new Date().toISOString(),
+          updated_by: 1
+        },
+        {
+          id: 4,
+          key: 'general_preferences',
+          value: JSON.stringify({
+            newOrderSound: true,
+            showAlerts: true,
+            sendCustomerNotifications: false
+          }),
+          updated_at: new Date().toISOString(),
+          updated_by: 1
+        }
+      ]
     };
     
-    // Exportar esquema de cada tabela
-    for (const table of tables) {
-      // Obter informações das colunas
-      const columnsResult = await pool.query(`
-        SELECT column_name, data_type, character_maximum_length, 
-               is_nullable, column_default
-        FROM information_schema.columns
-        WHERE table_schema = 'public'
-          AND table_name = $1
-        ORDER BY ordinal_position
-      `, [table]);
-      
-      // Obter constraints da tabela
-      const constraintsResult = await pool.query(`
-        SELECT con.conname as constraint_name,
-               con.contype as constraint_type,
-               pg_get_constraintdef(con.oid) as constraint_definition,
-               con.confrelid::regclass as referenced_table
-        FROM pg_constraint con
-        JOIN pg_class rel ON rel.oid = con.conrelid
-        JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
-        WHERE rel.relname = $1
-          AND nsp.nspname = 'public'
-      `, [table]);
-      
-      // Obter índices da tabela
-      const indexesResult = await pool.query(`
-        SELECT indexname, indexdef
-        FROM pg_indexes
-        WHERE tablename = $1
-          AND schemaname = 'public'
-      `, [table]);
-      
-      // Salvar informações do esquema
-      databaseExport.schema[table] = {
-        columns: columnsResult.rows,
-        constraints: constraintsResult.rows,
-        indexes: indexesResult.rows
-      };
-      
-      // Exportar dados da tabela
-      const dataResult = await pool.query(`SELECT * FROM "${table}"`);
-      databaseExport.data[table] = dataResult.rows;
-      
-      console.log(`Exportada tabela: ${table} (${dataResult.rows.length} registros)`);
-    }
+    // Criar arquivo SQL com os dados
+    let sqlContent = '-- Arquivo de exportação de dados do PizzaApp\n';
+    sqlContent += '-- Gerado em: ' + new Date().toISOString() + '\n\n';
     
-    // Salvar tudo em um arquivo JSON
-    const exportPath = path.join(__dirname, 'database-export.json');
-    fs.writeFileSync(exportPath, JSON.stringify(databaseExport, null, 2));
+    // Adicionar comandos para desativar/ativar restrições
+    sqlContent += 'BEGIN TRANSACTION;\n\n';
+    sqlContent += '-- Desativar restrições de chave estrangeira temporariamente\n';
+    sqlContent += 'PRAGMA foreign_keys = OFF;\n\n';
     
-    console.log(`Exportação concluída. Arquivo salvo em: ${exportPath}`);
+    // Limpar tabelas existentes
+    sqlContent += '-- Limpar tabelas existentes\n';
+    const tables = Object.keys(demoData);
+    tables.forEach(table => {
+      sqlContent += `DELETE FROM ${table};\n`;
+    });
+    sqlContent += '\n';
     
-    // Gerar script SQL para recriar o banco localmente
-    const sqlScriptPath = path.join(__dirname, 'recreate-database.sql');
-    let sqlScript = '-- Script para recriar o banco de dados localmente\n\n';
-    
-    // Criar tabelas
-    for (const table of tables) {
-      sqlScript += `-- Tabela: ${table}\n`;
-      sqlScript += `DROP TABLE IF EXISTS "${table}" CASCADE;\n`;
-      sqlScript += `CREATE TABLE "${table}" (\n`;
+    // Adicionar dados para cada tabela
+    for (const [table, records] of Object.entries(demoData)) {
+      sqlContent += `-- Inserir dados na tabela ${table}\n`;
       
-      const columns = databaseExport.schema[table].columns;
-      const columnDefinitions = columns.map(col => {
-        let def = `  "${col.column_name}" ${col.data_type}`;
-        if (col.character_maximum_length) {
-          def += `(${col.character_maximum_length})`;
-        }
-        if (col.is_nullable === 'NO') {
-          def += ' NOT NULL';
-        }
-        if (col.column_default) {
-          def += ` DEFAULT ${col.column_default}`;
-        }
-        return def;
+      records.forEach(record => {
+        const columns = Object.keys(record).join(', ');
+        const values = Object.values(record).map(value => {
+          if (value === null) return 'NULL';
+          if (typeof value === 'string') return `'${value.replace(/'/g, "''")}'`;
+          return value;
+        }).join(', ');
+        
+        sqlContent += `INSERT INTO ${table} (${columns}) VALUES (${values});\n`;
       });
       
-      sqlScript += columnDefinitions.join(',\n');
-      sqlScript += '\n);\n\n';
+      sqlContent += '\n';
     }
     
-    // Adicionar constraints
-    for (const table of tables) {
-      const constraints = databaseExport.schema[table].constraints;
-      
-      for (const constraint of constraints) {
-        if (constraint.constraint_type === 'p') { // Primary key
-          sqlScript += `ALTER TABLE "${table}" ADD ${constraint.constraint_definition};\n`;
-        }
+    // Restaurar sequência para autoincremento
+    sqlContent += '-- Atualizar sequências dos IDs\n';
+    tables.forEach(table => {
+      if (demoData[table].length > 0) {
+        const maxId = Math.max(...demoData[table].map(r => r.id));
+        sqlContent += `-- Atualizar sequência para a tabela ${table}\n`;
+        sqlContent += `UPDATE sqlite_sequence SET seq = ${maxId} WHERE name = '${table}';\n`;
       }
-      
-      sqlScript += '\n';
-    }
+    });
+    sqlContent += '\n';
     
-    for (const table of tables) {
-      const constraints = databaseExport.schema[table].constraints;
-      
-      for (const constraint of constraints) {
-        if (constraint.constraint_type === 'f') { // Foreign key
-          sqlScript += `ALTER TABLE "${table}" ADD ${constraint.constraint_definition};\n`;
-        }
-      }
-      
-      sqlScript += '\n';
-    }
+    // Reativar restrições de chave estrangeira
+    sqlContent += '-- Reativar restrições de chave estrangeira\n';
+    sqlContent += 'PRAGMA foreign_keys = ON;\n\n';
     
-    // Adicionar índices
-    for (const table of tables) {
-      const indexes = databaseExport.schema[table].indexes;
-      
-      for (const index of indexes) {
-        // Pular índices de chave primária que já foram adicionados
-        if (!index.indexname.endsWith('_pkey')) {
-          sqlScript += `${index.indexdef};\n`;
-        }
-      }
-      
-      sqlScript += '\n';
-    }
+    sqlContent += 'COMMIT;\n';
     
-    // Adicionar inserção de dados
-    for (const table of tables) {
-      const data = databaseExport.data[table];
-      
-      if (data.length > 0) {
-        sqlScript += `-- Inserir dados na tabela: ${table}\n`;
-        
-        for (const row of data) {
-          const columns = Object.keys(row).filter(key => row[key] !== null);
-          const values = columns.map(key => {
-            const value = row[key];
-            if (typeof value === 'string') {
-              // Escapar aspas simples
-              return `'${value.replace(/'/g, "''")}'`;
-            } else if (value instanceof Date) {
-              return `'${value.toISOString()}'`;
-            } else if (Array.isArray(value)) {
-              const arrayStr = JSON.stringify(value)
-                .replace('[', '{')
-                .replace(']', '}');
-              return `'${arrayStr}'`;
-            } else if (typeof value === 'object') {
-              return `'${JSON.stringify(value)}'`;
-            }
-            return value;
-          });
-          
-          sqlScript += `INSERT INTO "${table}" (${columns.map(c => `"${c}"`).join(', ')}) VALUES (${values.join(', ')});\n`;
-        }
-        
-        sqlScript += '\n';
-      }
-    }
+    // Salvar arquivo
+    const outputPath = path.join(__dirname, 'demo-data.sql');
+    await fs.writeFile(outputPath, sqlContent);
     
-    fs.writeFileSync(sqlScriptPath, sqlScript);
-    console.log(`Script SQL gerado: ${sqlScriptPath}`);
+    console.log('Arquivo de dados de exemplo gerado com sucesso:', outputPath);
+    console.log('Use este arquivo para popular o banco de dados local com dados iniciais.');
     
   } catch (error) {
-    console.error('Erro ao exportar banco de dados:', error);
-  } finally {
-    await pool.end();
+    console.error('Erro ao exportar o banco de dados:', error);
   }
 }
 
-// Executar a exportação
+// Executar a função
 exportDatabase();
