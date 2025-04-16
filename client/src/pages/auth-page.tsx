@@ -156,10 +156,10 @@ export default function AuthPage() {
                             name="name"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Full Name</FormLabel>
+                                <FormLabel>Nome Completo</FormLabel>
                                 <FormControl>
                                   <Input 
-                                    placeholder="Enter your full name" 
+                                    placeholder="Digite seu nome completo" 
                                     {...field} 
                                     disabled={registerMutation.isPending}
                                   />
@@ -178,7 +178,7 @@ export default function AuthPage() {
                                 <FormControl>
                                   <Input 
                                     type="email" 
-                                    placeholder="Enter your email" 
+                                    placeholder="Digite seu email" 
                                     {...field} 
                                     disabled={registerMutation.isPending}
                                   />
@@ -193,10 +193,10 @@ export default function AuthPage() {
                             name="username"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Username</FormLabel>
+                                <FormLabel>Nome de Usuário</FormLabel>
                                 <FormControl>
                                   <Input 
-                                    placeholder="Choose a username" 
+                                    placeholder="Escolha um nome de usuário" 
                                     {...field} 
                                     disabled={registerMutation.isPending}
                                   />
@@ -211,11 +211,11 @@ export default function AuthPage() {
                             name="password"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>Senha</FormLabel>
                                 <FormControl>
                                   <Input 
                                     type="password" 
-                                    placeholder="Create a password" 
+                                    placeholder="Crie uma senha" 
                                     {...field} 
                                     disabled={registerMutation.isPending}
                                   />
@@ -230,11 +230,11 @@ export default function AuthPage() {
                             name="confirmPassword"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Confirm Password</FormLabel>
+                                <FormLabel>Confirmar Senha</FormLabel>
                                 <FormControl>
                                   <Input 
                                     type="password" 
-                                    placeholder="Confirm your password" 
+                                    placeholder="Confirme sua senha" 
                                     {...field} 
                                     disabled={registerMutation.isPending}
                                   />
@@ -249,7 +249,7 @@ export default function AuthPage() {
                             className="w-full bg-[#D73C2C] hover:bg-red-700"
                             disabled={registerMutation.isPending}
                           >
-                            {registerMutation.isPending ? "Creating Account..." : "Create Account"}
+                            {registerMutation.isPending ? "Criando Conta..." : "Criar Conta"}
                           </Button>
                         </form>
                       </Form>

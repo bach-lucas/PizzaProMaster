@@ -38,15 +38,15 @@ const CartModal = () => {
     <Dialog open={isCartOpen} onOpenChange={closeCart}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-heading font-bold">Your Cart</DialogTitle>
+          <DialogTitle className="text-xl font-heading font-bold">Seu Carrinho</DialogTitle>
         </DialogHeader>
         
         {items.length === 0 ? (
           <div className="py-8 text-center">
-            <h3 className="mb-2 text-lg font-semibold">Your cart is empty</h3>
-            <p className="mb-6 text-gray-600">Looks like you haven't added any items to your cart yet.</p>
+            <h3 className="mb-2 text-lg font-semibold">Seu carrinho está vazio</h3>
+            <p className="mb-6 text-gray-600">Parece que você ainda não adicionou nenhum item ao seu carrinho.</p>
             <Button onClick={closeCart} variant="default">
-              Start Shopping
+              Começar a Comprar
             </Button>
           </div>
         ) : (
@@ -78,7 +78,7 @@ const CartModal = () => {
                         <Input
                           value={currentInstructions}
                           onChange={(e) => setCurrentInstructions(e.target.value)}
-                          placeholder="Special instructions..."
+                          placeholder="Instruções especiais..."
                           className="text-sm mb-1"
                         />
                         <Button 
@@ -87,7 +87,7 @@ const CartModal = () => {
                           onClick={() => saveInstructions(item.id)}
                           className="text-xs"
                         >
-                          Save
+                          Salvar
                         </Button>
                       </div>
                     ) : (
@@ -99,7 +99,7 @@ const CartModal = () => {
                               onClick={() => handleInstructionsEdit(item.id, item.specialInstructions)}
                               className="ml-2 text-xs text-primary hover:underline"
                             >
-                              Edit
+                              Editar
                             </button>
                           </>
                         ) : (
@@ -107,7 +107,7 @@ const CartModal = () => {
                             onClick={() => handleInstructionsEdit(item.id)}
                             className="text-xs text-primary hover:underline"
                           >
-                            Add special instructions
+                            Adicionar instruções especiais
                           </button>
                         )}
                       </p>
@@ -145,7 +145,7 @@ const CartModal = () => {
                 <span className="font-bold">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between mb-2">
-                <span>Delivery Fee</span>
+                <span>Taxa de Entrega</span>
                 <span className="font-bold">{formatCurrency(deliveryFee)}</span>
               </div>
               <div className="flex justify-between mb-4">
@@ -156,11 +156,11 @@ const CartModal = () => {
               <div className="space-y-2">
                 <Link href="/checkout">
                   <Button className="w-full" onClick={closeCart}>
-                    Proceed to Checkout
+                    Finalizar Pedido
                   </Button>
                 </Link>
                 <Button variant="outline" className="w-full" onClick={closeCart}>
-                  Continue Shopping
+                  Continuar Comprando
                 </Button>
               </div>
             </div>

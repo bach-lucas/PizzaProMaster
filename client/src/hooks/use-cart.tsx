@@ -82,8 +82,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
     
     toast({
-      title: "Added to cart",
-      description: `${item.name} has been added to your cart.`,
+      title: "Adicionado ao carrinho",
+      description: `${item.name} foi adicionado ao seu carrinho.`,
     });
   };
 
@@ -91,8 +91,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems(prevItems => prevItems.filter(item => item.id !== itemId));
     
     toast({
-      title: "Removed from cart",
-      description: "Item has been removed from your cart.",
+      title: "Removido do carrinho",
+      description: "Item foi removido do seu carrinho.",
     });
   };
 
