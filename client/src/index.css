@@ -12,31 +12,31 @@
   }
 
   :root {
-    --background: 0 0% 100%;
-    --foreground: 20 14.3% 4.1%;
+    --background: 44 43% 93%; /* #f3e9c6 */
+    --foreground: 27 27% 8%; /* #1b120b */
     --card: 0 0% 100%;
-    --card-foreground: 20 14.3% 4.1%;
+    --card-foreground: 27 27% 8%; /* #1b120b */
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14.3% 4.1%;
-    --primary: 359 67% 51%;
-    --primary-foreground: 60 9.1% 97.8%;
-    --secondary: 142 30% 26%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 60 4.8% 95.9%;
-    --muted-foreground: 25 5.3% 44.7%;
-    --accent: 35 100% 55%;
-    --accent-foreground: 20 14.3% 4.1%;
+    --popover-foreground: 27 27% 8%; /* #1b120b */
+    --primary: 45 86% 55%; /* #f0b227 */
+    --primary-foreground: 27 27% 8%; /* #1b120b */
+    --secondary: 25 75% 22%; /* #69300a */
+    --secondary-foreground: 44 43% 93%; /* #f3e9c6 */
+    --muted: 44 43% 93%; /* #f3e9c6 */
+    --muted-foreground: 34 24% 47%; /* #94845c */
+    --accent: 34 24% 47%; /* #94845c */
+    --accent-foreground: 44 43% 93%; /* #f3e9c6 */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
-    --border: 20 5.9% 90%;
-    --input: 20 5.9% 90%;
-    --ring: 35 100% 55%;
+    --border: 34 24% 47%; /* #94845c */
+    --input: 44 43% 93%; /* #f3e9c6 */
+    --ring: 45 86% 55%; /* #f0b227 */
     --radius: 0.5rem;
-    --chart-1: 359 67% 51%;
-    --chart-2: 142 30% 26%;
-    --chart-3: 35 100% 55%;
-    --chart-4: 12 76% 61%;
-    --chart-5: 202 81% 41%;
+    --chart-1: 45 86% 55%; /* #f0b227 */
+    --chart-2: 25 75% 22%; /* #69300a */
+    --chart-3: 34 24% 47%; /* #94845c */
+    --chart-4: 27 27% 8%; /* #1b120b */
+    --chart-5: 44 43% 93%; /* #f3e9c6 */
   }
 }
 
@@ -46,7 +46,7 @@ h1, h2, h3, h4, h5, h6 {
 
 body {
   font-family: 'Open Sans', sans-serif;
-  color: #333333;
+  color: #1b120b;
 }
 
 .active-tab {

@@ -44,10 +44,11 @@ Uma aplicação web moderna de restaurante de pizza oferecendo um sistema abrang
 
 ## Esquema de Cores
 
-- **Primário**: #D73C2C (vermelho pizza)
-- **Secundário**: #2C5530 (verde oliva)
-- **Destaque**: #FFA41B (amarelo quente)
-- **Neutros**: #FFFFFF (branco), #333333 (cinza escuro)
+- **Primário**: #f0b227 (amarelo dourado)
+- **Secundário**: #69300a (marrom médio)
+- **Destaque**: #94845c (marrom acinzentado)
+- **Fundo**: #f3e9c6 (bege claro)
+- **Texto**: #1b120b (marrom muito escuro)
 
 ## Usuários de Teste
 
@@ -60,6 +61,12 @@ Uma aplicação web moderna de restaurante de pizza oferecendo um sistema abrang
 - **cliente** / admin123
 
 ## Mudanças Recentes
+
+### 08/01/2025 - Atualização da Marca e Cores
+- ✅ Mudança do nome da marca para "ZZA"
+- ✅ Implementação da nova logo da pizzaria
+- ✅ Atualização do esquema de cores para tons terrosos/dourados
+- ✅ Integração da logo no header e footer
 
 ### 08/01/2025 - Remoção Completa da Funcionalidade de Customização de Pizza
 - ✅ Removido todos os schemas relacionados à pizza customization do `shared/schema.ts`
