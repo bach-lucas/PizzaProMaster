@@ -48,12 +48,12 @@ export default function OrderSuccessPage() {
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-2xl mx-auto">
-            <Card className={`border-2 ${paymentStatus === 'failure' ? 'border-red-500' : 'border-green-500'}`}>
-              <CardHeader className={`text-center ${paymentStatus === 'failure' ? 'bg-red-50 border-b border-red-100' : 'bg-green-50 border-b border-green-100'}`}>
+            <Card className={`border-2 ${paymentStatus === 'failure' ? 'border-red-500' : 'border-[#f0b227]'}`}>
+              <CardHeader className={`text-center ${paymentStatus === 'failure' ? 'bg-red-50 border-b border-red-100' : 'bg-[#f3e9c6] border-b border-[#f0b227]'}`}>
                 <div className={`mx-auto rounded-full p-3 w-16 h-16 flex items-center justify-center mb-2 ${
                   paymentStatus === 'failure' 
                     ? 'bg-red-100 text-red-700' 
-                    : 'bg-green-100 text-green-700'
+                    : 'bg-[#f0b227] text-[#1b120b]'
                 }`}>
                   {paymentStatus === 'failure' 
                     ? <AlertTriangle className="h-8 w-8" />
@@ -61,7 +61,7 @@ export default function OrderSuccessPage() {
                   }
                 </div>
                 <CardTitle className={`text-2xl font-heading ${
-                  paymentStatus === 'failure' ? 'text-red-700' : 'text-green-700'
+                  paymentStatus === 'failure' ? 'text-red-700' : 'text-[#1b120b]'
                 }`}>
                   {paymentStatus === 'failure' 
                     ? 'Pagamento Não Realizado' 
@@ -81,20 +81,20 @@ export default function OrderSuccessPage() {
                 {paymentStatus && order && order.paymentMethod === "mercadopago" && (
                   <div className="mb-6">
                     {paymentStatus === "approved" && (
-                      <Alert className="bg-green-50 border-green-200">
-                        <Check className="h-4 w-4 text-green-500" />
-                        <AlertTitle className="text-green-700">Pagamento Aprovado</AlertTitle>
-                        <AlertDescription className="text-green-600">
+                      <Alert className="bg-[#f3e9c6] border-[#f0b227]">
+                        <Check className="h-4 w-4 text-[#f0b227]" />
+                        <AlertTitle className="text-[#1b120b]">Pagamento Aprovado</AlertTitle>
+                        <AlertDescription className="text-[#69300a]">
                           Seu pagamento foi aprovado com sucesso. Sua pizza já está em preparo!
                         </AlertDescription>
                       </Alert>
                     )}
                     
                     {paymentStatus === "pending" && (
-                      <Alert className="bg-yellow-50 border-yellow-200">
-                        <Info className="h-4 w-4 text-yellow-500" />
-                        <AlertTitle className="text-yellow-700">Pagamento Pendente</AlertTitle>
-                        <AlertDescription className="text-yellow-600">
+                      <Alert className="bg-orange-50 border-orange-200">
+                        <Info className="h-4 w-4 text-orange-500" />
+                        <AlertTitle className="text-orange-700">Pagamento Pendente</AlertTitle>
+                        <AlertDescription className="text-orange-600">
                           Seu pagamento está em processamento. Assim que for confirmado, iniciaremos o preparo do seu pedido.
                         </AlertDescription>
                       </Alert>

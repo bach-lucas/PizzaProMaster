@@ -19,7 +19,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-full md:w-64 bg-[#2C5530] text-white p-4 md:min-h-screen">
+    <aside className="w-full md:w-64 bg-[#69300a] text-white p-4 md:min-h-screen">
       <div className="text-xl font-heading font-bold mb-6 pb-4 border-b border-gray-600">
         Admin Dashboard
       </div>

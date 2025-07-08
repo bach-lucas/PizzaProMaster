@@ -168,7 +168,7 @@ export default function OrderTrackingPage() {
                               {/* Step indicator */}
                               <div className={`absolute left-0 w-8 h-8 rounded-full flex items-center justify-center ${
                                 isActive 
-                                  ? `${isCurrent ? "bg-primary ring-4 ring-red-100" : "bg-green-500"} text-white` 
+                                  ? `${isCurrent ? "bg-primary ring-4 ring-primary/20" : "bg-[#f0b227]"} text-white` 
                                   : "bg-gray-200 text-gray-400"
                               }`}>
                                 {step.icon}
@@ -177,7 +177,7 @@ export default function OrderTrackingPage() {
                               {/* Step content */}
                               <div>
                                 <h3 className={`text-lg font-semibold ${
-                                  isActive ? (isCurrent ? "text-primary" : "text-green-500") : "text-gray-400"
+                                  isActive ? (isCurrent ? "text-primary" : "text-[#f0b227]") : "text-gray-400"
                                 }`}>
                                   {step.label}
                                 </h3>
@@ -197,12 +197,12 @@ export default function OrderTrackingPage() {
                       </div>
                       
                       {currentStep === 2 && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mt-6">
-                          <h3 className="font-semibold flex items-center text-yellow-800">
+                        <div className="bg-orange-50 border border-orange-200 rounded-md p-4 mt-6">
+                          <h3 className="font-semibold flex items-center text-orange-800">
                             <Truck className="h-5 w-5 mr-2" />
                             Tempo Estimado de Entrega
                           </h3>
-                          <p className="mt-1 text-yellow-700">
+                          <p className="mt-1 text-orange-700">
                             Seu pedido deve chegar em aproximadamente 15-20 minutos.
                           </p>
                         </div>

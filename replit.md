@@ -62,11 +62,15 @@ Uma aplicação web moderna de restaurante de pizza oferecendo um sistema abrang
 
 ## Mudanças Recentes
 
-### 08/01/2025 - Atualização da Marca e Cores
+### 08/01/2025 - Rebranding Completo ZZA
 - ✅ Mudança do nome da marca para "ZZA"
 - ✅ Implementação da nova logo da pizzaria
-- ✅ Atualização do esquema de cores para tons terrosos/dourados
+- ✅ Atualização completa do esquema de cores para tons terrosos/dourados
 - ✅ Integração da logo no header e footer
+- ✅ Substituição completa de todas as cores antigas (#D73C2C, #2C5530, #FFA41B) pelas novas cores
+- ✅ Atualização de todos os componentes, páginas e layouts com a nova identidade visual
+- ✅ Consistência visual em toda a aplicação (cliente e admin)
+- ✅ Atualização do CSS personalizado e classes Tailwind
 
 ### 08/01/2025 - Remoção Completa da Funcionalidade de Customização de Pizza
 - ✅ Removido todos os schemas relacionados à pizza customization do `shared/schema.ts`

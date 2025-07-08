@@ -29,7 +29,7 @@ function StatsCard({ title, value, description, icon, colorClass }: StatsCardPro
           <div>
             <p className="text-gray-600 text-sm mb-1">{title}</p>
             <h3 className="text-3xl font-bold">{value}</h3>
-            <p className="text-green-500 text-sm mt-2">{description}</p>
+            <p className="text-[#f0b227] text-sm mt-2">{description}</p>
           </div>
           <div className={`${colorClass} bg-opacity-10 p-3 rounded-full`}>
             {icon}
@@ -84,7 +84,7 @@ export default function Dashboard() {
             statusClasses = "bg-indigo-100 text-indigo-800";
             break;
           case "delivered":
-            statusClasses = "bg-green-100 text-green-800";
+            statusClasses = "bg-[#f3e9c6] text-[#69300a]";
             break;
           case "cancelled":
             statusClasses = "bg-red-100 text-red-800";
@@ -112,7 +112,7 @@ export default function Dashboard() {
       header: "Actions",
       accessorKey: "id",
       cell: (row: Order) => (
-        <a href={`/admin/orders?id=${row.id}`} className="text-primary hover:text-red-700">
+        <a href={`/admin/orders?id=${row.id}`} className="text-primary hover:text-[#d49a1e]">
           View
         </a>
       ),
@@ -157,24 +157,24 @@ export default function Dashboard() {
               title="Receita"
               value={formatCurrency(stats.totalRevenue)}
               description="8% a mais que semana passada"
-              icon={<DollarSign className="text-[#FFA41B] text-xl" />}
-              colorClass="bg-[#FFA41B]"
+              icon={<DollarSign className="text-[#f0b227] text-xl" />}
+              colorClass="bg-[#f0b227]"
             />
             
             <StatsCard
               title="Pedidos Ativos"
               value={stats.activeOrders}
               description="5% a mais que ontem"
-              icon={<Clock className="text-green-500 text-xl" />}
-              colorClass="bg-green-500"
+              icon={<Clock className="text-[#94845c] text-xl" />}
+              colorClass="bg-[#94845c]"
             />
             
             <StatsCard
               title="Clientes"
               value={stats.totalCustomers}
               description="15% a mais que mês passado"
-              icon={<Users className="text-[#2C5530] text-xl" />}
-              colorClass="bg-[#2C5530]"
+              icon={<Users className="text-[#69300a] text-xl" />}
+              colorClass="bg-[#69300a]"
             />
           </div>
         ) : null}

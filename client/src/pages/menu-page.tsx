@@ -62,7 +62,7 @@ export default function MenuPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
-        <section className="bg-[#D73C2C] text-white py-8">
+        <section className="bg-[#69300a] text-white py-8">
           <div className="container mx-auto px-4">
             <h1 className="font-heading font-bold text-3xl md:text-4xl text-center">Nosso Cardápio</h1>
             <p className="text-center mt-2">Preparado com ingredientes premium e assado à perfeição</p>
@@ -70,7 +70,7 @@ export default function MenuPage() {
         </section>
 
         {/* Menu Categories Tabs */}
-        <section className="py-8 bg-gray-50">
+        <section className="py-8 bg-[#f3e9c6]">
           <div className="container mx-auto px-4">
             <div className="flex justify-center mb-8">
               {isLoadingCategories ? (

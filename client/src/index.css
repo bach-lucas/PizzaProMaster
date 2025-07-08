@@ -50,14 +50,14 @@ body {
 }
 
 .active-tab {
-  border-bottom: 3px solid #D73C2C;
-  color: #D73C2C;
+  border-bottom: 3px solid #f0b227;
+  color: #f0b227;
   font-weight: 600;
 }
 
 .tab:hover:not(.active-tab) {
-  border-bottom: 3px solid #FFA41B;
-  color: #FFA41B;
+  border-bottom: 3px solid #94845c;
+  color: #94845c;
 }
 
 /* Efeito de sombra para melhorar legibilidade do texto sobre imagens */

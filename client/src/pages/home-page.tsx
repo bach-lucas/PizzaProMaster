@@ -22,7 +22,7 @@ export default function HomePage() {
       <Header />
       <main className="flex-grow">
         {/* Seção Principal */}
-        <section className="relative bg-[#D73C2C] text-white overflow-hidden">
+        <section className="relative bg-[#69300a] text-white overflow-hidden">
           <div className="container mx-auto px-4 py-16 md:py-24 relative z-10 hero-container">
             <div className="max-w-3xl relative hero-text">
               <h1 className="font-heading font-bold text-4xl md:text-5xl mb-4 text-shadow">
@@ -33,12 +33,12 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/menu">
-                  <Button className="bg-[#FFA41B] hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full drop-shadow-md">
+                  <Button className="bg-[#f0b227] hover:bg-[#d49a1e] text-[#1b120b] font-bold py-3 px-8 rounded-full drop-shadow-md">
                     Peça Agora
                   </Button>
                 </Link>
                 <Link href="/menu">
-                  <Button variant="outline" className="bg-transparent hover:bg-white hover:text-[#D73C2C] border-2 border-white text-white font-bold py-3 px-8 rounded-full drop-shadow-md">
+                  <Button variant="outline" className="bg-transparent hover:bg-white hover:text-[#69300a] border-2 border-white text-white font-bold py-3 px-8 rounded-full drop-shadow-md">
                     Ver Cardápio
                   </Button>
                 </Link>
@@ -55,16 +55,16 @@ export default function HomePage() {
                 className="object-cover h-full w-full md:rounded-l-[50px]"
               />
               {/* Gradiente sobreposto para melhorar legibilidade */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#D73C2C] via-[#D73C2C] to-transparent opacity-90 md:opacity-50"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#69300a] via-[#69300a] to-transparent opacity-90 md:opacity-50"></div>
             </div>
           </div>
           
           {/* Proteção adicional para garantir que o texto seja legível */}
-          <div className="hidden md:block absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-[#D73C2C] to-transparent opacity-70 z-[1]"></div>
+          <div className="hidden md:block absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-[#69300a] to-transparent opacity-70 z-[1]"></div>
         </section>
 
         {/* Seção de Itens em Destaque */}
-        <section className="py-12 bg-gray-50">
+        <section className="py-12 bg-[#f3e9c6]">
           <div className="container mx-auto px-4">
             <h2 className="font-heading font-bold text-3xl md:text-4xl text-center mb-8">
               Destaques do Cardápio
@@ -100,7 +100,7 @@ export default function HomePage() {
             
             <div className="text-center">
               <Link href="/menu">
-                <Button variant="outline" className="bg-[#FFA41B] hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center">
+                <Button variant="outline" className="bg-[#f0b227] hover:bg-[#d49a1e] text-[#1b120b] font-bold py-3 px-8 rounded-full inline-flex items-center">
                   <span>Ver Cardápio Completo</span>
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -137,7 +137,7 @@ export default function HomePage() {
         </section>
         
         {/* Seção Sobre Nós */}
-        <section className="py-12 bg-gray-50">
+        <section className="py-12 bg-[#f3e9c6]">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center">
               <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
@@ -149,8 +149,8 @@ export default function HomePage() {
                   Nossa massa é feita fresca diariamente, e nosso molho é preparado com tomates selecionados à mão e uma mistura secreta de ervas e especiarias.
                 </p>
                 <div className="flex space-x-4">
-                  <a href="#" className="text-[#D73C2C] hover:text-red-700 font-bold">Saiba mais sobre nós</a>
-                  <a href="#" className="text-[#D73C2C] hover:text-red-700 font-bold">Veja nossas unidades</a>
+                  <a href="#" className="text-[#f0b227] hover:text-[#d49a1e] font-bold">Saiba mais sobre nós</a>
+                  <a href="#" className="text-[#f0b227] hover:text-[#d49a1e] font-bold">Veja nossas unidades</a>
                 </div>
               </div>
               <div className="md:w-1/2">

@@ -21,8 +21,8 @@ export default function SpecialOfferCard({ offer, isInverted = false }: SpecialO
     });
   };
 
-  const bgColor = isInverted ? "bg-[#2C5530]" : "bg-[#D73C2C]";
-  const textColor = isInverted ? "text-[#2C5530]" : "text-[#D73C2C]";
+  const bgColor = isInverted ? "bg-[#69300a]" : "bg-[#94845c]";
+  const textColor = isInverted ? "text-[#69300a]" : "text-[#94845c]";
 
   return (
     <div className={`${bgColor} rounded-lg overflow-hidden flex flex-col md:flex-row`}>
@@ -43,7 +43,7 @@ export default function SpecialOfferCard({ offer, isInverted = false }: SpecialO
         <Button 
           onClick={handleAddToCart}
           className="bg-white hover:bg-gray-100 font-bold py-2 px-6 rounded-full"
-          style={{ color: isInverted ? '#2C5530' : '#D73C2C' }}
+          style={{ color: isInverted ? '#69300a' : '#94845c' }}
         >
           Adicionar ao Carrinho
         </Button>

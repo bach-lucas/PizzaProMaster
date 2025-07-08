@@ -47,7 +47,7 @@ function AddressItem({ address, onEdit, onDelete, onSetFavorite }: {
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <CardTitle className="text-lg">{address.street}, {address.number}</CardTitle>
             {address.isFavorite && (
-              <Badge variant="outline" className="ml-2 text-green-500 border-green-500">
+              <Badge variant="outline" className="ml-2 text-[#f0b227] border-[#f0b227]">
                 <CheckCircle className="h-3 w-3 mr-1" /> Principal
               </Badge>
             )}

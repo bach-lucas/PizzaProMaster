@@ -173,10 +173,10 @@ export default function Orders() {
       accessorKey: "status",
       cell: (row: Order) => {
         const statusMap: Record<string, { color: string; label: string }> = {
-          pending: { color: "bg-yellow-100 text-yellow-800", label: "Pendente" },
+          pending: { color: "bg-orange-100 text-orange-800", label: "Pendente" },
           preparing: { color: "bg-blue-100 text-blue-800", label: "Em Preparo" },
           in_transit: { color: "bg-indigo-100 text-indigo-800", label: "Em Trânsito" },
-          delivered: { color: "bg-green-100 text-green-800", label: "Entregue" },
+          delivered: { color: "bg-[#f3e9c6] text-[#69300a]", label: "Entregue" },
           cancelled: { color: "bg-red-100 text-red-800", label: "Cancelado" },
         };
         
