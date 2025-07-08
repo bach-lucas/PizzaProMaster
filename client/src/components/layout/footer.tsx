@@ -6,8 +6,15 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-heading font-bold text-xl mb-4">ZZA</h3>
-<p className="mb-4">Autêntica pizza italiana feita com paixão e os melhores ingredientes em forno a lenha tradicional.</p>
+            <div className="flex items-center space-x-3 mb-4">
+              <img 
+                src="/logo.jpg" 
+                alt="ZZA Logo" 
+                className="w-10 h-10 object-contain rounded-full"
+              />
+              <h3 className="font-heading font-bold text-xl">ZZA</h3>
+            </div>
+            <p className="mb-4">Autêntica pizza italiana feita com paixão e os melhores ingredientes em forno a lenha tradicional.</p>
             <div className="flex space-x-4">
               <a href="#" className="text-white hover:text-[#FFA41B]" aria-label="Facebook">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-5 h-5 fill-current">

@@ -30,19 +30,12 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
-              {/* Logo placeholder */}
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 flex items-center justify-center">
                 <img 
-                  src="/logo.png" 
+                  src="/logo.jpg" 
                   alt="ZZA Logo" 
-                  className="w-10 h-10 object-contain"
-                  onError={(e) => {
-                    // Fallback quando a logo não está disponível
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling.style.display = 'flex';
-                  }}
+                  className="w-12 h-12 object-contain rounded-full"
                 />
-                <span className="text-white font-bold text-lg hidden">Z</span>
               </div>
               <span className="text-primary font-heading font-bold text-2xl">ZZA</span>
             </Link>
