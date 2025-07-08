@@ -143,7 +143,7 @@ export default function HomePage() {
               <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
                 <h2 className="font-heading font-bold text-3xl md:text-4xl mb-6">Nossa História</h2>
                 <p className="text-gray-700 mb-4">
-                  Na Bella Pizza, estamos preparando autênticas pizzas italianas há mais de 25 anos. Nossas receitas foram transmitidas por gerações, e temos orgulho de usar apenas os ingredientes mais frescos.
+                  Na Pizza ZZA forno a lenha, estamos preparando autênticas pizzas italianas há mais de 25 anos. Nossas receitas foram transmitidas por gerações, e temos orgulho de usar apenas os ingredientes mais frescos.
                 </p>
                 <p className="text-gray-700 mb-6">
                   Nossa massa é feita fresca diariamente, e nosso molho é preparado com tomates selecionados à mão e uma mistura secreta de ervas e especiarias.

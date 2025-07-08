@@ -1,4 +1,4 @@
-# Bella Pizza - Sistema de Pedidos Online
+# Pizza ZZA forno a lenha - Sistema de Pedidos Online
 
 ## Visão Geral
 

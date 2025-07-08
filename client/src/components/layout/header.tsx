@@ -30,7 +30,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/" className="text-primary font-heading font-bold text-2xl">
-              Bella Pizza
+              Pizza ZZA forno a lenha
             </Link>
             
             <nav className="hidden md:flex ml-8">
