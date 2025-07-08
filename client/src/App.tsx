@@ -9,7 +9,7 @@ import AuthPage from "@/pages/auth-page";
 import CheckoutPage from "@/pages/checkout-page";
 import OrderSuccessPage from "@/pages/order-success-page";
 import OrderTrackingPage from "@/pages/order-tracking-page";
-import PizzaBuilderPage from "@/pages/pizza-builder-page";
+
 import ProfilePage from "@/pages/profile-page";
 
 // Admin pages
@@ -33,7 +33,6 @@ function Router() {
       <Route path="/" component={HomePage} />
       <Route path="/menu" component={MenuPage} />
       <Route path="/auth" component={AuthPage} />
-      <Route path="/monte-sua-pizza" component={PizzaBuilderPage} />
       
       {/* Protected customer routes */}
       <ProtectedRoute path="/checkout" component={CheckoutPage} />

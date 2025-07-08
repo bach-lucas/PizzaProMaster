@@ -108,61 +108,7 @@ export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
 export type SpecialOffer = typeof specialOffers.$inferSelect;
 export type InsertSpecialOffer = z.infer<typeof insertSpecialOfferSchema>;
 
-// Pizza Customization Schema
-export const pizzaBaseSchema = z.object({
-  id: z.number().positive(),
-  name: z.string(),
-  description: z.string().optional(),
-  price: z.number().positive(),
-  imageUrl: z.string().optional(),
-});
 
-export const pizzaSizeSchema = z.object({
-  id: z.number().positive(),
-  name: z.string(),
-  multiplier: z.number().positive(),
-  description: z.string().optional(),
-});
-
-export const pizzaCrustSchema = z.object({
-  id: z.number().positive(),
-  name: z.string(),
-  price: z.number().positive(),
-  description: z.string().optional(),
-});
-
-export const pizzaSauceSchema = z.object({
-  id: z.number().positive(),
-  name: z.string(),
-  price: z.number().positive(),
-  description: z.string().optional(),
-  imageUrl: z.string().optional(),
-});
-
-export const pizzaToppingSchema = z.object({
-  id: z.number().positive(),
-  name: z.string(),
-  price: z.number().positive(),
-  category: z.string(),
-  description: z.string().optional(),
-  imageUrl: z.string().optional(),
-});
-
-export const pizzaCustomizationSchema = z.object({
-  baseId: z.number().positive(),
-  sizeId: z.number().positive(),
-  crustId: z.number().positive(),
-  sauceId: z.number().positive(),
-  toppingIds: z.array(z.number().positive()),
-  specialInstructions: z.string().optional(),
-});
-
-export type PizzaBase = z.infer<typeof pizzaBaseSchema>;
-export type PizzaSize = z.infer<typeof pizzaSizeSchema>;
-export type PizzaCrust = z.infer<typeof pizzaCrustSchema>;
-export type PizzaSauce = z.infer<typeof pizzaSauceSchema>;
-export type PizzaTopping = z.infer<typeof pizzaToppingSchema>;
-export type PizzaCustomization = z.infer<typeof pizzaCustomizationSchema>;
 
 // Delivery addresses
 export const addresses = pgTable("addresses", {
