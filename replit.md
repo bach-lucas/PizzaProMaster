@@ -1,4 +1,4 @@
-# Pizza ZZA forno a lenha - Sistema de Pedidos Online
+# ZZA - Sistema de Pedidos Online
 
 ## Visão Geral
 
