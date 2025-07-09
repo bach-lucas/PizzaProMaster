@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import logoUrl from "@assets/LOGO PIZZARIA_1751983593505.jpg";
 
 type AdminSidebarProps = {
   className?: string;
@@ -102,9 +103,19 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
           <span className="sr-only">Abrir menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[240px] sm:w-[300px] p-0">
+      <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0">
         <SheetHeader className="px-4 py-4 border-b">
-          <SheetTitle className="text-left">Menu do Administrador</SheetTitle>
+          <div className="flex items-center space-x-3">
+            <img 
+              src={logoUrl} 
+              alt="ZZA Logo" 
+              className="h-8 w-8 rounded-full object-cover"
+            />
+            <div>
+              <SheetTitle className="text-left text-[#1b120b]">ZZA</SheetTitle>
+              <p className="text-sm text-[#69300a]">Painel Administrativo</p>
+            </div>
+          </div>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-60px)]">
           <div className="flex flex-col gap-1 p-2">
@@ -147,12 +158,21 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
       <MobileMenu />
       
       <div className={cn(
-        "fixed inset-y-0 left-0 z-40 hidden md:flex md:w-64 flex-col border-r bg-background",
+        "fixed inset-y-0 left-0 z-40 hidden md:flex md:w-64 flex-col border-r bg-white shadow-lg",
         className
       )}>
         <div className="px-3 py-4 border-b">
-          <h2 className="text-lg font-semibold">Painel Administrativo</h2>
-          <p className="text-sm text-muted-foreground">Pizzaria DeliciaPizza</p>
+          <div className="flex items-center space-x-3">
+            <img 
+              src={logoUrl} 
+              alt="ZZA Logo" 
+              className="h-10 w-10 rounded-full object-cover"
+            />
+            <div>
+              <h2 className="text-lg font-semibold text-[#1b120b]">ZZA</h2>
+              <p className="text-sm text-[#69300a]">Painel Administrativo</p>
+            </div>
+          </div>
         </div>
         
         <ScrollArea className="flex-1">

@@ -71,6 +71,9 @@ Uma aplicação web moderna de restaurante de pizza oferecendo um sistema abrang
 - ✅ Atualização de todos os componentes, páginas e layouts com a nova identidade visual
 - ✅ Consistência visual em toda a aplicação (cliente e admin)
 - ✅ Atualização do CSS personalizado e classes Tailwind
+- ✅ Melhorias na responsividade do painel administrativo
+- ✅ Logo ZZA integrada no sidebar administrativo
+- ✅ Otimização das tabelas para dispositivos móveis
 
 ### 08/01/2025 - Remoção Completa da Funcionalidade de Customização de Pizza
 - ✅ Removido todos os schemas relacionados à pizza customization do `shared/schema.ts`

@@ -323,7 +323,7 @@ export default function MenuManagement() {
             <p className="text-gray-600">Adicione, edite e gerencie os itens do cardápio</p>
           </div>
           <Link href="/admin/menu/create">
-            <Button className="bg-primary hover:bg-red-700">
+            <Button className="bg-primary hover:bg-[#d49a1f]">
               <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Novo Item
             </Button>
           </Link>
@@ -332,7 +332,7 @@ export default function MenuManagement() {
         {/* Menu Categories Tabs */}
         <div className="mb-6 border-b border-gray-200">
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="flex overflow-x-auto">
+            <TabsList className="flex overflow-x-auto gap-1 md:gap-2">
               <TabsTrigger value="all">Todos os Itens</TabsTrigger>
               {!isLoadingCategories && categories?.map(category => (
                 <TabsTrigger key={category.id} value={category.id.toString()}>

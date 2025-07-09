@@ -34,28 +34,28 @@ export function AdminLayout({
 
       {/* Main Content Area */}
       <div className="md:pl-64">
-        <div className="p-4 sm:p-6">
+        <div className="p-3 sm:p-4 lg:p-6">
           {/* Header area with back button and title */}
-          <div className="flex flex-row items-center mb-6">
+          <div className="flex flex-row items-center mb-4 sm:mb-6">
             {showBackButton && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="mr-4"
+                className="mr-2 sm:mr-4"
                 onClick={handleBack}
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
+                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Voltar</span>
               </Button>
             )}
             
             {title && (
-              <h1 className="text-2xl font-bold">{title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-[#1b120b] truncate">{title}</h1>
             )}
           </div>
 
           {/* Main content */}
-          <main>{children}</main>
+          <main className="max-w-full overflow-x-auto">{children}</main>
         </div>
       </div>
     </div>

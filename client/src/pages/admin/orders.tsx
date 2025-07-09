@@ -160,7 +160,8 @@ export default function Orders() {
       cell: (row: Order) => {
         const items = row.items as any[];
         const itemText = items.map(item => `${item.quantity}x ${item.name}`).join(", ");
-        return <span>{itemText.length > 40 ? `${itemText.substring(0, 40)}...` : itemText}</span>;
+        const maxLength = window.innerWidth < 640 ? 20 : 40;
+        return <span className="text-xs sm:text-sm">{itemText.length > maxLength ? `${itemText.substring(0, maxLength)}...` : itemText}</span>;
       },
     },
     {
@@ -211,8 +212,8 @@ export default function Orders() {
             onValueChange={(value) => handleStatusChange(row.id, value)}
             disabled={updateOrderStatusMutation.isPending}
           >
-            <SelectTrigger className="w-[130px] h-8">
-              <SelectValue placeholder="Alterar status" />
+            <SelectTrigger className="w-[100px] sm:w-[130px] h-8 text-xs sm:text-sm">
+              <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="pending">Pendente</SelectItem>
@@ -257,11 +258,11 @@ export default function Orders() {
             onValueChange={setStatusFilter}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-3 md:grid-cols-6 gap-2">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 sm:gap-2">
               <TabsTrigger value="all" className="text-sm">
                 Todos os Pedidos
               </TabsTrigger>
-              <TabsTrigger value="pending" className="text-sm text-yellow-700">
+              <TabsTrigger value="pending" className="text-sm text-orange-700">
                 Pendentes
               </TabsTrigger>
               <TabsTrigger value="preparing" className="text-sm text-blue-700">
@@ -270,7 +271,7 @@ export default function Orders() {
               <TabsTrigger value="in_transit" className="text-sm text-indigo-700">
                 Em Trânsito
               </TabsTrigger>
-              <TabsTrigger value="delivered" className="text-sm text-green-700">
+              <TabsTrigger value="delivered" className="text-sm text-[#69300a]">
                 Entregues
               </TabsTrigger>
               <TabsTrigger value="cancelled" className="text-sm text-red-700">

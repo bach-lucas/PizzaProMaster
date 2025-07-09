@@ -75,7 +75,7 @@ export default function Dashboard() {
         
         switch (row.status) {
           case "pending":
-            statusClasses = "bg-yellow-100 text-yellow-800";
+            statusClasses = "bg-orange-100 text-orange-800";
             break;
           case "preparing":
             statusClasses = "bg-blue-100 text-blue-800";

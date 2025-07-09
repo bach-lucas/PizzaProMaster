@@ -38,12 +38,12 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   return (
     <div className="w-full">
-      <div className="rounded-md border">
-        <Table>
+      <div className="rounded-md border overflow-x-auto">
+        <Table className="min-w-full">
           <TableHeader>
             <TableRow>
               {columns.map((column, index) => (
-                <TableHead key={index} className="font-medium">
+                <TableHead key={index} className="font-medium text-xs sm:text-sm whitespace-nowrap">
                   {column.header}
                 </TableHead>
               ))}
@@ -63,7 +63,7 @@ export function DataTable<T>({
               data.map((row, rowIndex) => (
                 <TableRow key={rowIndex}>
                   {columns.map((column, colIndex) => (
-                    <TableCell key={colIndex}>
+                    <TableCell key={colIndex} className="text-xs sm:text-sm">
                       {column.cell
                         ? column.cell(row)
                         : typeof column.accessorKey === "function"
